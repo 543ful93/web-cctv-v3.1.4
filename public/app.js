@@ -355,9 +355,32 @@ const i18n = {
     settings_sub: "Kustomisasi metadata aplikasi dan ganti kata sandi login Anda.",
     app_settings: "Pengaturan Tampilan Aplikasi",
     setting_name: "Nama Aplikasi",
+    setting_agency_line: "Baris Atas Kop",
+    setting_agency_line_hint: "Baris kecil paling atas di kop instansi, di atas nama instansi.",
     setting_sub: "Subtitle Aplikasi",
-    setting_running: "Teks Berjalan Utama",
+    setting_running: "Teks Berjalan (Baris INFO)",
+    setting_running_hint: "Kalimat yang bergulir pada baris INFO di kop. Jika dikosongkan, baris INFO otomatis diisi informasi sistem (nama aplikasi, kamera online, tanggal).",
     setting_footer: "Kaki Halaman (Footer)",
+    gov_info: "INFO",
+    // v2.9.20: petunjuk tiap kolom formulir kamera
+    cam_hint_name: "Contoh: \"Kamera 01 — Parkir Depan\". Nama tampil di grid live & daftar rekaman.",
+    cam_hint_location: "Boleh kosong. Isi nama tempat pemasangan, tampil sebagai keterangan di peta & grid.",
+    cam_hint_rtsp: "Alamat stream kamera/DVR. Skema IP default LAN CCTV (tanpa internet): STB 192.168.77.1, kamera statis 192.168.77.2–99, otomatis (DHCP) .100–200. Bila bingung, buka \"Asisten Pembuat RTSP\" di bawah atau tombol \"Pindai ONVIF\".",
+    cam_hint_type: "Pilih sesuai perangkat. Bila RTSP kamera tidak didukung, gunakan HLS (.m3u8) atau MJPEG lewat asisten.",
+    cam_hint_channel: "Nomor kanal DVR/NVR (1 = kanal pertama). Kamera IP tunggal biasanya 1.",
+    cam_hint_yt: "Hanya dipakai bila tipe = YouTube. Butuh internet; abaikan untuk LAN tanpa internet.",
+    cam_hint_lat: "Opsional, contoh -6.1754. Untuk posisi penanda kamera di peta.",
+    cam_hint_lng: "Opsional, contoh 106.8272. Peta (tile) butuh internet; di LAN offline posisi tetap tersimpan.",
+    cam_hint_maker_ip: "Default skema LAN CCTV: .2–.99 statis, .100–200 DHCP",
+    // v2.9.20: DHCP LAN CCTV
+    net_dhcp_title: "Skema IP Default & DHCP untuk LAN CCTV (tanpa internet)",
+    net_dhcp_body: "Colok port LAN STB ke switch hub, lalu kamera ke switch hub yang sama. Aktifkan DHCP server di bawah ini maka setiap kamera yang dicolok langsung mendapat IP otomatis — tanpa router dan tanpa internet. Web CCTV tetap tampil karena semua berjalan di jaringan lokal.",
+    net_dhcp_stb: "STB (port LAN)",
+    net_dhcp_static: "Kamera statis (disarankan)",
+    net_dhcp_auto: "Kamera otomatis (DHCP)",
+    net_dhcp_enable: "Aktifkan DHCP Server Kamera",
+    net_dhcp_disable: "Nonaktifkan DHCP Server",
+    net_dhcp_note: "Catatan: agar satu jaringan, setel IP statis port LAN STB ke 192.168.77.1/24 pada bagian Topologi di bawah (peran LAN). Kamera yang muncul di pemindaian ONVIF bisa langsung dipakai dari web walau tanpa internet.",
     change_password: "Ganti Kata Sandi",
     pwd_old: "Kata Sandi Lama",
     pwd_new: "Kata Sandi Baru",
@@ -684,9 +707,32 @@ const i18n = {
     settings_sub: "Customize application metadata and change your login password.",
     app_settings: "App Appearance Settings",
     setting_name: "Application Name",
+    setting_agency_line: "Letterhead Top Line",
+    setting_agency_line_hint: "The small top line of the agency letterhead, above the agency name.",
     setting_sub: "Application Subtitle",
-    setting_running: "Main Running Text",
+    setting_running: "Running Text (INFO Bar)",
+    setting_running_hint: "The sentence scrolling on the INFO bar of the letterhead. If left empty, the INFO bar is auto-filled with system information (app name, online cameras, date).",
     setting_footer: "Site Footer",
+    gov_info: "INFO",
+    // v2.9.20: per-field hints on the camera form
+    cam_hint_name: "Example: \"Cam 01 — Front Parking\". Shown on the live grid & recording list.",
+    cam_hint_location: "Optional. Installation spot, shown as caption on the map & grid.",
+    cam_hint_rtsp: "Camera/DVR stream address. Default CCTV LAN IP scheme (no internet): STB 192.168.77.1, static cameras 192.168.77.2–99, automatic (DHCP) .100–200. If unsure, open the \"RTSP Maker\" below or press \"ONVIF Scan\".",
+    cam_hint_type: "Match your device. If the camera's RTSP is unsupported, use HLS (.m3u8) or MJPEG via the maker.",
+    cam_hint_channel: "DVR/NVR channel number (1 = first channel). Single IP cameras usually 1.",
+    cam_hint_yt: "Only used when type = YouTube. Needs internet; ignore for offline LAN.",
+    cam_hint_lat: "Optional, e.g. -6.1754. Marker position on the map.",
+    cam_hint_lng: "Optional, e.g. 106.8272. Map tiles need internet; positions are still saved offline.",
+    cam_hint_maker_ip: "Default CCTV LAN scheme: .2–.99 static, .100–200 DHCP",
+    // v2.9.20: CCTV LAN DHCP
+    net_dhcp_title: "Default IP Scheme & DHCP for the CCTV LAN (no internet)",
+    net_dhcp_body: "Plug the STB LAN port into the switch hub, then cameras into the same hub. Enable the DHCP server below and every plugged-in camera gets an IP automatically — no router, no internet. The CCTV web keeps working because everything runs on the local network.",
+    net_dhcp_stb: "STB (LAN port)",
+    net_dhcp_static: "Static cameras (recommended)",
+    net_dhcp_auto: "Automatic cameras (DHCP)",
+    net_dhcp_enable: "Enable Camera DHCP Server",
+    net_dhcp_disable: "Disable DHCP Server",
+    net_dhcp_note: "Note: to share one network, set the STB LAN port to static 192.168.77.1/24 in the Topology section below (LAN role). Cameras found by the ONVIF scan can be used from the web even without internet.",
     change_password: "Change Password",
     pwd_old: "Old Password",
     pwd_new: "New Password",
@@ -723,7 +769,10 @@ try {
   safeStorage.removeItem("user");
 }
 
-let currentView = "dashboard";
+// v2.9.16: tampilan awal adalah LIVE CCTV, bukan Dasbor.
+// Saat aplikasi dibuka, yang paling dibutuhkan adalah melihat gambar kamera,
+// bukan statistik. Dasbor tetap bisa diakses lewat menu di urutan kedua.
+let currentView = "live";
 let camerasList = [];
 let recordsList = [];
 let mapInstance = null;
@@ -789,6 +838,19 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ================= AUTHENTICATION =================
+/** Hapus token lama setelah JWT_SECRET berubah / token kedaluwarsa, lalu minta
+ * login ulang tanpa memuat ulang halaman. Form yang sedang diisi tetap ada. */
+function handleExpiredSession(message) {
+  safeStorage.removeItem("token");
+  safeStorage.removeItem("user");
+  currentUser = null;
+  checkAuthSession();
+  showLoginModal();
+  showToast(message || (currentLanguage === "id"
+    ? "Sesi login tidak berlaku. Silakan masuk kembali, lalu tekan Simpan lagi."
+    : "Your session is no longer valid. Sign in again, then press Save."), "error");
+}
+
 function checkAuthSession() {
   const token = safeStorage.getItem("token");
   
@@ -840,10 +902,9 @@ function checkAuthSession() {
     document.querySelectorAll(".admin-only").forEach(el => el.classList.add("hidden"));
     document.querySelectorAll(".logged-in-only").forEach(el => el.classList.add("hidden"));
 
-    // Set view default publik ke "live" (Live CCTV)
-    if (["dashboard","records","cameras","users","settings","activity"].includes(currentView)) {
-      currentView = "live";
-    }
+    // Mode tamu selalu diarahkan ke Live CCTV, apa pun view sebelumnya.
+    // Dasbor berisi statistik sistem yang tidak relevan bagi penonton publik.
+    currentView = "live";
 
     loadAppConfigs();
     navigateToView(currentView);
@@ -988,8 +1049,17 @@ function updateDynamicTranslations() {
 let appConfigs = {};
 async function loadAppConfigs() {
   try {
-    const res = await fetch("/api/settings");
+    const res = await fetch("/api/settings", {
+      headers: safeStorage.getItem("token")
+        ? { "Authorization": `Bearer ${safeStorage.getItem("token")}` }
+        : {}
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     appConfigs = await res.json();
+    // paintGovIdentity() sebelumnya membaca window.appConfigs, sedangkan hasil
+    // fetch hanya disimpan ke variabel lexical `appConfigs`. Akibatnya Baris INFO
+    // terus memakai fallback dan tidak berubah setelah nilai kustom disimpan.
+    window.appConfigs = appConfigs;
     
     // Apply Settings to UI
     const setInner = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
@@ -1002,9 +1072,11 @@ async function loadAppConfigs() {
     setInner("login-app-name", appConfigs.app_name || "Web-CCTV");
     setInner("app-footer-text", appConfigs.site_footer || "Web-CCTV HG680P");
     setInner("ticker-text", appConfigs.running_text || "Web-CCTV Live Stream Transcoder Active");
-    
+    paintGovIdentity(); // v2.9.18: baris INFO kop langsung terisi setelah simpan
+
     // Populate Setting Inputs
     setVal("setting-app-name", appConfigs.app_name || "");
+    setVal("setting-agency-line", appConfigs.agency_line || "");
     setVal("setting-app-sub", appConfigs.app_sub || "");
     setVal("setting-running-text", appConfigs.running_text || "");
     setVal("setting-site-footer", appConfigs.site_footer || "");
@@ -1247,6 +1319,171 @@ async function refreshServerClock() {
   }
 }
 
+// =====================================================================
+// v2.9.15 — KOP INSTANSI & STATUS BAR GAYA INSTANSI PEMERINTAHAN
+// ---------------------------------------------------------------------
+// Identitas (nama instansi, subjudul, logo) diambil dari Pengaturan, jadi
+// tidak perlu mengubah kode untuk mengganti identitas.
+// =====================================================================
+const HARI_ID = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+const BULAN_ID = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+
+function isGovAdminView() { return true; }
+
+/** Format tanggal panjang gaya instansi: "Senin, 30 Agustus 2026". */
+function formatGovDate(d) {
+  // Jangan pakai `d instanceof Date`: di lingkungan seperti jsdom, konstruktor
+  // Date di realm berbeda sehingga instanceof selalu false walau objeknya sah.
+  if (!d || typeof d.getTime !== "function" || isNaN(d.getTime())) return "—";
+  if (currentLanguage === "id") {
+    return `${HARI_ID[d.getDay()]}, ${d.getDate()} ${BULAN_ID[d.getMonth()]} ${d.getFullYear()}`;
+  }
+  return d.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+}
+
+/** Format uptime jadi "3h 4j 12m" (ID) / "3d 4h 12m" (EN). */
+function formatGovUptime(sec) {
+  const n = Math.max(0, Math.floor(Number(sec) || 0));
+  const d = Math.floor(n / 86400), h = Math.floor((n % 86400) / 3600), m = Math.floor((n % 3600) / 60);
+  if (currentLanguage === "id") {
+    return d > 0 ? `${d}h ${h}j ${m}m` : (h > 0 ? `${h}j ${m}m` : `${m}m`);
+  }
+  return d > 0 ? `${d}d ${h}h ${m}m` : (h > 0 ? `${h}h ${m}m` : `${m}m`);
+}
+
+/** Warna meter berubah sesuai tingkat keparahan. */
+function meterClass(pct) {
+  const p = Number(pct) || 0;
+  if (p >= 90) return "bg-red-500";
+  if (p >= 75) return "bg-amber-500";
+  return "bg-emerald-500";
+}
+
+function setMeter(id, pct) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const p = Math.max(0, Math.min(100, Number(pct) || 0));
+  el.style.width = p + "%";
+  el.className = "gov-meter-fill " + meterClass(p);
+}
+
+/**
+ * Format jam HH:MM:SS dengan titik dua.
+ *
+ * TIDAK memakai formatServerClock() karena fungsi itu memakai locale id-ID,
+ * yang memformat jam dengan TITIK (13.20.33). Itu memang konvensi penulisan
+ * Indonesia, tetapi untuk jam digital di papan pantau harus titik dua (13:20:33).
+ */
+function formatGovClock(date) {
+  if (!(date instanceof Date) || isNaN(date.getTime())) return "--:--:--";
+  try {
+    return new Intl.DateTimeFormat("en-GB", {
+      timeZone: serverClockTimezone || "Asia/Jakarta",
+      hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false,
+    }).format(date);
+  } catch {
+    const p = n => String(n).padStart(2, "0");
+    return `${p(date.getHours())}:${p(date.getMinutes())}:${p(date.getSeconds())}`;
+  }
+}
+
+/** Perbarui jam & tanggal pada kop instansi (dipanggil tiap detik). */
+function paintGovClock() {
+  const now = estimatedServerNow();
+  const c = document.getElementById("gov-clock");
+  if (c) c.innerText = formatGovClock(now);
+  const dEl = document.getElementById("gov-date");
+  if (dEl) dEl.innerText = formatGovDate(now) + " · " + (serverClockStatus?.timezone_label || "WIB");
+}
+
+/** Isi identitas instansi dari Pengaturan. */
+function paintGovIdentity() {
+  const cfg = window.appConfigs || {};
+  const setTxt = (id, v) => { const el = document.getElementById(id); if (el && v) el.innerText = v; };
+  setTxt("gov-agency-line", cfg.agency_line);
+  setTxt("gov-agency-name", cfg.app_name);
+  setTxt("gov-agency-sub", cfg.app_sub);
+  const ticker = document.getElementById("gov-running-text");
+  // v2.9.18: bila Teks Berjalan kosong, baris INFO otomatis diisi info sistem
+  // (nama aplikasi, kamera online, tanggal) supaya selalu ada informasi.
+  if (ticker) ticker.innerText = cfg.running_text ? cfg.running_text : buildDefaultInfoText(cfg);
+  // Logo: pakai logo unggahan bila ada, kalau tidak tampilkan ikon perisai.
+  // v2.9.21: jangan "bangkitkan" <img> yang gagal dimuat — sebelumnya setiap
+  // refresh dasbor menampilkan lagi ikon gambar rusak bila logo belum diunggah.
+  const img = document.getElementById("gov-logo-img");
+  const fb = document.getElementById("gov-logo-fallback");
+  if (img && fb) {
+    const showImg = () => { img.style.display = ""; fb.classList.add("hidden"); };
+    const showFb = () => { img.style.display = "none"; fb.classList.remove("hidden"); };
+    img.onload = showImg;
+    img.onerror = showFb;
+    if (img.complete && img.naturalWidth === 0) showFb();
+    else if (img.complete && img.naturalWidth > 0) showImg();
+  }
+}
+
+/** v2.9.18: teks default baris INFO bila "Teks Berjalan" kosong. */
+function buildDefaultInfoText(cfg) {
+  const c = cfg || {};
+  const online = (document.getElementById("gov-online") || {}).innerText || "0";
+  const total = (document.getElementById("gov-total") || {}).innerText || "0";
+  const name = c.app_name || "Web-CCTV";
+  const date = formatGovDate(estimatedServerNow());
+  return currentLanguage === "en"
+    ? `${name} monitoring system is active • Cameras online ${online}/${total} • ${date} • Please monitor the screen periodically`
+    : `Sistem pemantauan ${name} aktif • Kamera online ${online}/${total} • ${date} • Pantau layar secara berkala`;
+}
+
+/** Isi indikator sistem (kamera, uptime, CPU, suhu, penyimpanan). */
+function paintGovStats(stats, specs, disk) {
+  const setTxt = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
+  if (stats) {
+    setTxt("gov-online", stats.online);
+    setTxt("gov-total", stats.totalCam);
+    setTxt("gov-offline", stats.offline);
+  }
+  if (specs) {
+    setTxt("gov-cpu", (specs.cpu != null ? specs.cpu : "—") + "%");
+    setTxt("gov-temp", specs.temp != null ? specs.temp + "°C" : "—");
+    setTxt("gov-uptime", formatGovUptime(specs.uptime));
+    setMeter("gov-cpu-bar", specs.cpu);
+  }
+  if (disk) {
+    setTxt("gov-disk", (disk.used_percent != null ? disk.used_percent : "—") + "%");
+    setMeter("gov-disk-bar", disk.used_percent);
+    // v2.9.19: perjelas disk mana yang diukur (HDD rekaman atau SD sistem).
+    const diskDetail = document.getElementById("gov-disk-detail");
+    if (diskDetail) {
+      if (disk.hdd_mismatch) {
+        diskDetail.innerText = currentLanguage === "en"
+          ? "HDD expected — recordings still on SD!"
+          : "HDD diharapkan — rekaman masih di SD!";
+        diskDetail.className = "gov-stat-sub gov-stat-warn";
+      } else {
+        const kind = disk.storage_kind === "hdd" ? "HDD" : "SD";
+        diskDetail.innerText = `${kind} ${disk.used_gb || "—"}/${disk.total_gb || "—"}GB`;
+        diskDetail.className = "gov-stat-sub";
+      }
+    }
+  }
+}
+
+/** Ambil specs + storage lalu isi status bar. */
+async function refreshGovStats() {
+  try {
+    const token = safeStorage.getItem("token");
+    if (!token) return;
+    const headers = { Authorization: `Bearer ${token}` };
+    const [specsRes, diskRes] = await Promise.all([
+      fetch("/api/system/specs", { headers }).catch(() => null),
+      fetch("/api/system/storage", { headers }).catch(() => null),
+    ]);
+    const specs = specsRes && specsRes.ok ? await specsRes.json() : null;
+    const disk = diskRes && diskRes.ok ? await diskRes.json() : null;
+    paintGovStats(null, specs, disk);
+  } catch {}
+}
+
 function startDashboardClock() {
   if (dashboardClockInterval) clearInterval(dashboardClockInterval);
   refreshServerClock();
@@ -1259,6 +1496,7 @@ function startDashboardClock() {
       clockEl.querySelector('span').innerText = `${formatServerClock(now, true)} ${serverClockStatus?.timezone_label || 'WIB'}`;
     }
     paintSystemTimeStatus();
+    paintGovClock();          // v2.9.15: jam & tanggal pada kop instansi
     ticks++;
     if (ticks % 60 === 0 || (!serverClockStatus?.synced && ticks % 5 === 0)) {
       refreshServerClock();
@@ -1290,10 +1528,15 @@ async function loadDashboardStats() {
     setInner("stat-recording-now", stats.recordingNow);
     setInner("stat-records-size", stats.recordsSizeMb + " MB");
 
+    // v2.9.15: isi juga status bar kop instansi
+    paintGovStats(stats, null, null);
+    paintGovIdentity();
+
     // Load CPU, RAM, and Temperature dynamically!
     try {
       const resSpecs = await fetch("/api/system/specs", { headers });
       const specs = await resSpecs.json();
+      paintGovStats(null, specs, null);   // v2.9.15: CPU/suhu/uptime di kop
       
       const cpuEl = document.getElementById("sys-cpu");
       const tempEl = document.getElementById("sys-temp");
@@ -2225,9 +2468,256 @@ async function loadNetworkMenu() {
     renderNetWanInfo(netSummaryData);
     renderNetLanInfo(netSummaryData);
     renderNetCamsByLan(netSummaryData);
+    renderRouterOverview(netSummaryData);
     fillNetScanIfaceOptions(netSummaryData);
+    loadDhcpStatus(); // v2.9.20: status DHCP server LAN CCTV
+    loadZeroTierStatus(); // v3.1: VPN virtual langsung dari menu Network
   } catch (err) {
     if (body) body.innerHTML = `<tr><td colspan="9" class="p-4 text-center text-red-400">${escHtml(err.message)}</td></tr>`;
+  }
+}
+
+// ===== v3.0: ringkasan visual bergaya panel router ========================
+function renderRouterOverview(data) {
+  if (!data) return;
+  const L = currentLanguage === "id";
+  const inet = data.internet || {};
+  const wan = (data.plan && data.plan.wan) || null;
+  const routes = data.default_routes || [];
+  const ranges = (data.plan && data.plan.lan_scan_ranges) || [];
+  const groups = data.cameras_by_lan || [];
+  const cameraCount = groups.reduce((n, group) => n + ((group.cameras || []).length), 0);
+
+  const set = (id, value) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+  };
+  set("router-wan-summary", wan
+    ? `${wan.iface}${routes[0] && routes[0].via ? " · " + routes[0].via : ""}`
+    : (L ? "WAN belum diatur" : "WAN not configured"));
+  set("router-stb-summary", data.hostname || "Web-CCTV");
+  set("router-lan-summary", ranges.length
+    ? `${ranges[0].gateway_ip} · ${ranges[0].iface}`
+    : (L ? "LAN belum diatur" : "LAN not configured"));
+  set("router-camera-summary", cameraCount
+    ? `${cameraCount} ${L ? "kamera terdaftar" : "registered camera(s)"}`
+    : (L ? "Belum ada kamera di subnet" : "No camera in subnet"));
+
+  const badge = document.getElementById("router-health-badge");
+  if (badge) {
+    badge.classList.remove("is-online", "is-offline");
+    badge.classList.add(inet.ok === true ? "is-online" : "is-offline");
+    const label = badge.querySelector("span:last-child");
+    if (label) label.textContent = inet.ok === true
+      ? (L ? `Internet aktif${inet.ms ? " · " + inet.ms + " ms" : ""}` : `Internet online${inet.ms ? " · " + inet.ms + " ms" : ""}`)
+      : (L ? "Mode lokal / internet offline" : "Local mode / internet offline");
+  }
+}
+
+// ===== v3.1: ZEROTIER LANGSUNG DARI MENU NETWORK =========================
+function setZeroTierMessage(message, type = "info") {
+  const el = document.getElementById("zerotier-message");
+  if (!el) return;
+  if (!message) { el.classList.add("hidden"); el.textContent = ""; return; }
+  const styles = {
+    info: "bg-sky-500/10 border border-sky-500/30 text-sky-200",
+    success: "bg-emerald-500/10 border border-emerald-500/30 text-emerald-200",
+    error: "bg-red-500/10 border border-red-500/30 text-red-200",
+  };
+  el.className = `rounded-lg px-3 py-2 text-[11px] ${styles[type] || styles.info}`;
+  el.textContent = message;
+}
+
+async function loadZeroTierStatus() {
+  const networksEl = document.getElementById("zerotier-networks");
+  if (!networksEl) return;
+  const setText = (id, value, cls) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = value;
+    if (cls) el.className = cls;
+  };
+  try {
+    const res = await fetch("/api/net/zerotier/status", { headers: netAuthHeaders() });
+    const data = await res.json();
+    if (!res.ok) {
+      if (res.status === 404) throw new Error("Backend ZeroTier belum aktif. Perbarui server.js/server.mysql.js lalu restart service Web-CCTV.");
+      throw new Error(data.error || `HTTP ${res.status}`);
+    }
+
+    const installBox = document.getElementById("zerotier-install-box");
+    const joinBox = document.getElementById("zerotier-join-box");
+    if (installBox) installBox.classList.toggle("hidden", data.installed);
+    if (joinBox) joinBox.classList.toggle("hidden", !data.installed);
+    setText("zerotier-installed", data.installed ? "TERPASANG" : "BELUM TERPASANG", data.installed ? "text-emerald-400" : "text-amber-400");
+    setText("zerotier-online", data.installed ? (data.online ? "ONLINE" : "OFFLINE") : "—", data.online ? "text-emerald-400" : "text-slate-400");
+    setText("zerotier-node-id", data.node_id || "—", "font-mono text-slate-200");
+    setText("zerotier-version", data.version || "—", "font-mono text-slate-200");
+
+    const networks = Array.isArray(data.networks) ? data.networks : [];
+    if (!data.installed) {
+      networksEl.innerHTML = `<div class="text-[11px] text-slate-500 py-3 text-center">Pasang ZeroTier untuk mulai menghubungkan jaringan.</div>`;
+    } else if (!networks.length) {
+      networksEl.innerHTML = `<div class="text-[11px] text-slate-500 bg-slate-950/50 border border-slate-800 rounded-lg py-4 text-center">Belum bergabung ke jaringan ZeroTier.</div>`;
+    } else {
+      networksEl.innerHTML = networks.map(n => {
+        const ok = String(n.status).toUpperCase() === "OK";
+        const ips = (n.assigned_addresses || []).length
+          ? n.assigned_addresses.map(ip => `<span class="zerotier-ip">${escHtml(ip)}</span>`).join("")
+          : `<span class="text-amber-400">Menunggu otorisasi / IP…</span>`;
+        return `<div class="zerotier-network-card">
+          <div class="min-w-0">
+            <div class="flex flex-wrap items-center gap-2">
+              <strong class="font-mono text-slate-100">${escHtml(n.id)}</strong>
+              <span class="zerotier-status ${ok ? "is-ok" : "is-wait"}">${escHtml(n.status || "WAITING")}</span>
+            </div>
+            <div class="text-[10px] text-slate-500 mt-1">${escHtml(n.name || "Jaringan tanpa nama")} ${n.device ? `· ${escHtml(n.device)}` : ""}</div>
+            <div class="flex flex-wrap gap-1.5 mt-2">${ips}</div>
+          </div>
+          <button type="button" onclick="leaveZeroTier('${escHtml(n.id)}')" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 px-3 py-1.5 rounded-lg text-[10px] font-bold cursor-pointer whitespace-nowrap">
+            <i class="fa-solid fa-link-slash mr-1"></i>Keluar
+          </button>
+        </div>`;
+      }).join("");
+    }
+    if (data.last_error) setZeroTierMessage(data.last_error, "error");
+    else setZeroTierMessage("");
+  } catch (err) {
+    setZeroTierMessage(err.message, "error");
+    networksEl.innerHTML = `<div class="text-[11px] text-red-400 py-3 text-center">${escHtml(err.message)}</div>`;
+  }
+}
+
+async function installZeroTier() {
+  const btn = document.getElementById("zerotier-install-btn");
+  if (!confirm("Pasang ZeroTier resmi dan aktifkan otomatis saat STB menyala?")) return;
+  if (btn) { btn.disabled = true; btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin mr-1"></i>Sedang memasang…`; }
+  setZeroTierMessage("Mengunduh dan memasang ZeroTier. Proses dapat berlangsung beberapa menit…", "info");
+  try {
+    const res = await fetch("/api/net/zerotier/install", { method: "POST", headers: netAuthHeaders() });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+    setZeroTierMessage("ZeroTier berhasil dipasang dan service sudah aktif.", "success");
+    showToast("ZeroTier berhasil dipasang.", "success");
+    await loadZeroTierStatus();
+  } catch (err) {
+    setZeroTierMessage(err.message, "error");
+    showToast(err.message, "error");
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = `<i class="fa-solid fa-download mr-1"></i>Pasang ZeroTier Otomatis`; }
+  }
+}
+
+async function joinZeroTier() {
+  const input = document.getElementById("zerotier-network-id");
+  const btn = document.getElementById("zerotier-join-btn");
+  const id = String(input ? input.value : "").trim().toLowerCase();
+  if (!/^[0-9a-f]{16}$/.test(id)) {
+    setZeroTierMessage("Network ID wajib tepat 16 karakter: angka 0–9 dan huruf a–f.", "error");
+    if (input) input.focus();
+    return;
+  }
+  if (btn) btn.disabled = true;
+  setZeroTierMessage(`Menghubungkan STB ke jaringan ${id}…`, "info");
+  try {
+    const res = await fetch("/api/net/zerotier/join", {
+      method: "POST",
+      headers: { ...netAuthHeaders(), "Content-Type": "application/json" },
+      body: JSON.stringify({ network_id: id })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+    if (input) input.value = "";
+    setZeroTierMessage("Permintaan bergabung berhasil. Otorisasi Node ID ini di ZeroTier Central.", "success");
+    showToast("Berhasil bergabung ke ZeroTier.", "success");
+    await loadZeroTierStatus();
+  } catch (err) {
+    setZeroTierMessage(err.message, "error");
+    showToast(err.message, "error");
+  } finally { if (btn) btn.disabled = false; }
+}
+
+async function leaveZeroTier(networkId) {
+  if (!confirm(`Keluar dari jaringan ZeroTier ${networkId}? Akses melalui IP virtual ini akan terputus.`)) return;
+  try {
+    const res = await fetch("/api/net/zerotier/leave", {
+      method: "POST",
+      headers: { ...netAuthHeaders(), "Content-Type": "application/json" },
+      body: JSON.stringify({ network_id: networkId })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+    showToast("Berhasil keluar dari jaringan ZeroTier.", "success");
+    await loadZeroTierStatus();
+  } catch (err) {
+    setZeroTierMessage(err.message, "error");
+    showToast(err.message, "error");
+  }
+}
+
+// ===== v2.9.20: DHCP server LAN CCTV (skema IP default) ==================
+async function loadDhcpStatus() {
+  const statusEl = document.getElementById("net-dhcp-status");
+  const btn = document.getElementById("net-dhcp-toggle");
+  try {
+    const res = await fetch("/api/net/dhcp", { headers: netAuthHeaders() });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const s = await res.json();
+    if (btn) {
+      const label = btn.querySelector("span");
+      const tr = (k) => (i18n[currentLanguage] && i18n[currentLanguage][k]) || i18n.id[k] || k;
+      if (label) label.innerText = s.enabled ? tr("net_dhcp_disable") : tr("net_dhcp_enable");
+      btn.className = s.enabled
+        ? "bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition border-0 cursor-pointer"
+        : "bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition border-0 cursor-pointer";
+    }
+    const routerCam = document.getElementById("router-camera-summary");
+    if (routerCam && s.scheme) {
+      const count = (netSummaryData && netSummaryData.cameras_by_lan || [])
+        .reduce((n, group) => n + ((group.cameras || []).length), 0);
+      routerCam.textContent = s.enabled
+        ? `DHCP ON · ${s.scheme.dhcp_start}–${s.scheme.dhcp_end}${count ? ` · ${count} kamera` : ""}`
+        : (count ? `${count} kamera · IP statis` : "DHCP OFF · IP statis");
+    }
+    if (statusEl) {
+      if (s.enabled) {
+        statusEl.innerHTML = currentLanguage === "id"
+          ? `Aktif — kamera yang dicolok ke switch hub mendapat IP <span class="font-mono text-amber-400">${s.scheme.dhcp_start}–${s.scheme.dhcp_end}</span>${s.running ? "" : " (dnsmasq belum berjalan — restart STB atau: sudo service dnsmasq restart)"}`
+          : `Active — cameras plugged into the switch hub get <span class="font-mono text-amber-400">${s.scheme.dhcp_start}–${s.scheme.dhcp_end}</span>${s.running ? "" : " (dnsmasq not running yet — reboot or: sudo service dnsmasq restart)"}`;
+      } else {
+        statusEl.innerText = currentLanguage === "id"
+          ? "Nonaktif — kamera harus memakai IP statis 192.168.77.2–99 atau router lain sebagai DHCP."
+          : "Inactive — cameras must use static 192.168.77.2–99 or another router as DHCP.";
+      }
+    }
+  } catch (err) {
+    if (statusEl) statusEl.innerText = err.message;
+  }
+}
+
+async function handleToggleDhcp() {
+  const statusEl = document.getElementById("net-dhcp-status");
+  try {
+    const cur = await fetch("/api/net/dhcp", { headers: netAuthHeaders() });
+    const s = cur.ok ? await cur.json() : { enabled: false };
+    const want = !s.enabled;
+    showLoader(want ? "Mengaktifkan DHCP server…" : "Menonaktifkan DHCP server…");
+    const res = await fetch("/api/net/dhcp", {
+      method: "POST",
+      headers: { ...netAuthHeaders(), "Content-Type": "application/json" },
+      body: JSON.stringify({ enabled: want })
+    });
+    const data = await res.json();
+    if (!res.ok || data.ok === false) throw new Error(data.error || `HTTP ${res.status}`);
+    showToast(currentLanguage === "id"
+      ? (want ? "DHCP server kamera diaktifkan." : "DHCP server kamera dinonaktifkan.")
+      : (want ? "Camera DHCP server enabled." : "Camera DHCP server disabled."), "success");
+    loadDhcpStatus();
+  } catch (err) {
+    showToast(err.message, "error");
+    if (statusEl) statusEl.innerText = err.message;
+  } finally {
+    hideLoader();
   }
 }
 
@@ -3324,19 +3814,23 @@ async function initLeafletMap() {
       maxZoom: 19
     }).addTo(mapInstance);
 
-    // Tambahkan Penanda Utama Posko CCTV - Bendera Indonesia (Pulsing Glow)
+    // Penanda utama juga berbentuk kamera agar tidak ada marker bulat di peta.
     const flagIcon = L.divIcon({
-      className: 'indonesia-flag-marker',
+      className: 'cctv-map-marker-wrap cctv-hq-marker-wrap',
       html: `
-        <div class="relative flex items-center justify-center">
-          <span class="animate-ping absolute inline-flex h-8 w-8 rounded-full bg-red-500/20 opacity-75"></span>
-          <div class="bg-gradient-to-tr from-slate-900 to-slate-800 border border-slate-700 w-8 h-8 rounded-full flex items-center justify-center shadow-2xl relative z-10 text-xs">
-            🇮🇩
-          </div>
-        </div>
-      `,
-      iconSize: [30, 30],
-      iconAnchor: [15, 15]
+        <div class="cctv-svg-marker cctv-hq-marker" style="--marker-color:#f59e0b">
+          <span class="cctv-svg-marker-pulse"></span>
+          <svg viewBox="0 0 68 56" role="img" aria-label="Pusat CCTV">
+            <path class="cctv-svg-housing" d="M7 10h38a5 5 0 0 1 5 5v20a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V15a5 5 0 0 1 5-5Z"/>
+            <path class="cctv-svg-lens" d="m50 19 13-7a2 2 0 0 1 3 2v22a2 2 0 0 1-3 2l-13-7Z"/>
+            <circle class="cctv-svg-glass" cx="17" cy="25" r="7"/>
+            <path class="cctv-svg-stand" d="M29 40v7h11v5H16v-5h8v-7Z"/>
+          </svg>
+          <span class="cctv-hq-flag">🇮🇩</span>
+        </div>`,
+      iconSize: [54, 48],
+      iconAnchor: [27, 45],
+      popupAnchor: [0, -42]
     });
 
     L.marker([-6.0807629, 106.1683088], { icon: flagIcon }).addTo(mapInstance)
@@ -3365,14 +3859,32 @@ async function initLeafletMap() {
       const isOnline = statusObj.online;
       
       const markerColor = isOnline === true ? "#10b981" : (isOnline === false ? "#ef4444" : "#64748b");
-      
-      const marker = L.circleMarker([parseFloat(cam.lat), parseFloat(cam.lng)], {
-        radius: 10,
-        fillColor: markerColor,
-        color: "#ffffff",
-        weight: 2,
-        opacity: 1,
-        fillOpacity: 0.95
+      const markerState = isOnline === true ? "online" : (isOnline === false ? "offline" : "unknown");
+
+      // v3.0.1: penanda berbentuk kamera, bukan lingkaran polos. Warna LED dan
+      // bingkai tetap menunjukkan status tanpa mengorbankan bentuk ikon.
+      const cameraIcon = L.divIcon({
+        className: "cctv-map-marker-wrap",
+        html: `
+          <div class="cctv-svg-marker is-${markerState}" style="--marker-color:${markerColor}">
+            <span class="cctv-svg-marker-pulse"></span>
+            <svg viewBox="0 0 68 56" role="img" aria-label="Kamera CCTV">
+              <path class="cctv-svg-housing" d="M7 10h38a5 5 0 0 1 5 5v20a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V15a5 5 0 0 1 5-5Z"/>
+              <path class="cctv-svg-lens" d="m50 19 13-7a2 2 0 0 1 3 2v22a2 2 0 0 1-3 2l-13-7Z"/>
+              <circle class="cctv-svg-glass" cx="17" cy="25" r="7"/>
+              <path class="cctv-svg-stand" d="M29 40v7h11v5H16v-5h8v-7Z"/>
+            </svg>
+            <span class="cctv-svg-marker-led"></span>
+          </div>`,
+        iconSize: [54, 48],
+        iconAnchor: [27, 45],
+        popupAnchor: [0, -42]
+      });
+
+      const marker = L.marker([parseFloat(cam.lat), parseFloat(cam.lng)], {
+        icon: cameraIcon,
+        title: `${cam.name} · ${isOnline === true ? "Online" : (isOnline === false ? "Offline" : "Tidak diketahui")}`,
+        riseOnHover: true
       }).addTo(mapInstance);
 
       // Create Popup HTML containing a nested fully functional video player inside the marker bubble!
@@ -4506,10 +5018,19 @@ async function loadStorageStatus() {
     const warnBadge = document.getElementById("storage-warning-badge");
 
     if (usedText) {
+      // v2.9.19: sertakan disk mana yang diukur (HDD rekaman / SD sistem)
+      const diskLabel = data.storage_kind === "hdd"
+        ? (currentLanguage === 'id' ? "Hardisk/USB" : "HDD/USB")
+        : (currentLanguage === 'id' ? "SD/Sistem" : "SD/System");
+      const mismatchNote = data.hdd_mismatch
+        ? (currentLanguage === 'id'
+          ? ` • <b class="text-red-400">HDD diharapkan tetapi rekaman masih ditulis ke SD! Jalankan mount-hdd.sh / periksa symlink.</b>`
+          : ` • <b class="text-red-400">HDD expected but recordings still written to SD! Run mount-hdd.sh / check symlink.</b>`)
+        : "";
       if (currentLanguage === 'id') {
-        usedText.innerHTML = `Berkas: <b class="text-white">${data.records_size_mb} MB</b> • Terpakai: <b class="text-white">${data.used_gb} GB</b> / ${data.total_gb} GB disk • Sisa: <b class="text-emerald-400">${data.free_gb} GB Kosong</b> (<span class="font-mono text-blue-400">${data.used_percent}%</span>)`;
+        usedText.innerHTML = `Berkas: <b class="text-white">${data.records_size_mb} MB</b> • Disk rekaman: <b class="text-white">${diskLabel}</b> (${data.mount || "—"}) • Terpakai: <b class="text-white">${data.used_gb} GB</b> / ${data.total_gb} GB • Sisa: <b class="text-emerald-400">${data.free_gb} GB Kosong</b> (<span class="font-mono text-blue-400">${data.used_percent}%</span>)${mismatchNote}`;
       } else {
-        usedText.innerHTML = `Files: <b class="text-white">${data.records_size_mb} MB</b> • Used: <b class="text-white">${data.used_gb} GB</b> / ${data.total_gb} GB disk • Free: <b class="text-emerald-400">${data.free_gb} GB Left</b> (<span class="font-mono text-blue-400">${data.used_percent}%</span>)`;
+        usedText.innerHTML = `Files: <b class="text-white">${data.records_size_mb} MB</b> • Recording disk: <b class="text-white">${diskLabel}</b> (${data.mount || "—"}) • Used: <b class="text-white">${data.used_gb} GB</b> / ${data.total_gb} GB • Free: <b class="text-emerald-400">${data.free_gb} GB Left</b> (<span class="font-mono text-blue-400">${data.used_percent}%</span>)${mismatchNote}`;
       }
     }
 
@@ -4525,6 +5046,7 @@ async function loadStorageStatus() {
         bar.className = "bg-blue-600 h-2 rounded-full transition-all duration-500";
         if (warnBadge) warnBadge.classList.add("hidden");
       }
+      paintGovStats(null, null, data);   // v2.9.15: penyimpanan di kop instansi
     }
   } catch (err) {
     console.error("Failed to load storage status:", err);
@@ -4841,7 +5363,14 @@ async function handleSaveCamera(e) {
     }
 
     if (!res.ok) {
-      const errData = await res.json();
+      const errData = await res.json().catch(() => ({}));
+      if (res.status === 401) {
+        handleExpiredSession(currentLanguage === "id"
+          ? "Token login lama sudah tidak berlaku setelah instalasi. Login kembali; isian kamera tetap tersimpan di form."
+          : "Your old login token became invalid after installation. Sign in again; the camera form is preserved.");
+        return;
+      }
+      if (res.status === 403) throw new Error("Akun ini tidak memiliki izin admin untuk menyimpan kamera.");
       throw new Error(errData.error || "Gagal menyimpan data kamera");
     }
 
@@ -5045,6 +5574,7 @@ async function handleSaveAppSettings(e) {
 
   const body = {
     app_name: document.getElementById("setting-app-name").value,
+    agency_line: (document.getElementById("setting-agency-line") || {}).value || "",
     app_sub: document.getElementById("setting-app-sub").value,
     running_text: document.getElementById("setting-running-text").value,
     site_footer: document.getElementById("setting-site-footer").value,
@@ -5064,8 +5594,10 @@ async function handleSaveAppSettings(e) {
     });
     if (!res.ok) throw new Error("Gagal menyimpan setting");
 
-    showToast(currentLanguage === 'id' ? "Pengaturan Aplikasi berhasil diperbarui!" : "App settings updated successfully!", "success");
-    loadAppConfigs(); // Reload config titles
+    // Tunggu konfigurasi terbaru selesai dimuat dan dicat ke kop. Tanpa await,
+    // pengguna dapat melihat toast berhasil sementara Baris INFO masih teks lama.
+    await loadAppConfigs();
+    showToast(currentLanguage === 'id' ? "Pengaturan aplikasi dan Baris INFO berhasil diperbarui!" : "App settings and INFO bar updated successfully!", "success");
   } catch (err) {
     showToast(err.message, "error");
   }

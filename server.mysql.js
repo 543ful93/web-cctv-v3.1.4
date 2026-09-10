@@ -37,6 +37,7 @@ const totp = require('./lib/totp');
 const mediaSign = require('./lib/media-sign');
 const { createNotifier } = require('./lib/notify');
 const { createThumbnailService } = require('./lib/thumbnail');
+const { createZeroTierService } = require('./lib/zerotier');
 require('dotenv').config({ quiet: true });
 
 // Versi dibaca dari package.json agar backend SQLite dan MySQL tidak pernah
@@ -900,6 +901,40 @@ app.post('/api/restore', auth('admin'), async (req, res) => {
       { req, level: 'warn' });
     res.json({ success: true, mode, ...counts });
   } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// ---- ZeroTier dari menu Network (paritas dengan backend SQLite) ----
+const zeroTierService = createZeroTierService();
+
+app.get('/api/net/zerotier/status', auth('admin'), async (req, res) => {
+  try { res.json(await zeroTierService.status()); }
+  catch (err) { res.status(500).json({ error: err.message }); }
+});
+app.post('/api/net/zerotier/install', auth('admin'), async (req, res) => {
+  try {
+    const result = await zeroTierService.install();
+    await logActivity('zerotier.installed', `ZeroTier dipasang dari menu Network (${result.version || 'version unknown'})`, { req });
+    res.json(result);
+  } catch (err) {
+    await logActivity('zerotier.install_failed', err.message, { req, level: 'error' });
+    res.status(500).json({ error: err.message });
+  }
+});
+app.post('/api/net/zerotier/join', auth('admin'), async (req, res) => {
+  const networkId = String((req.body || {}).network_id || '').trim().toLowerCase();
+  try {
+    const result = await zeroTierService.join(networkId);
+    await logActivity('zerotier.joined', `Bergabung ke jaringan ${networkId}`, { req });
+    res.json(result);
+  } catch (err) { res.status(400).json({ error: err.message }); }
+});
+app.post('/api/net/zerotier/leave', auth('admin'), async (req, res) => {
+  const networkId = String((req.body || {}).network_id || '').trim().toLowerCase();
+  try {
+    const result = await zeroTierService.leave(networkId);
+    await logActivity('zerotier.left', `Keluar dari jaringan ${networkId}`, { req, level: 'warn' });
+    res.json(result);
+  } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
 // ---- sistem ----

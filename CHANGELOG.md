@@ -1,5 +1,301 @@
 # Changelog
 
+## v3.1.4 — RTSP No-Frames / HLS Startup Fix
+
+- Memaksa keyframe setiap segmen saat transcode (`GOP = FPS × 2 detik`) agar playlist HLS muncul cepat.
+- Memperpanjang waktu tunggu startup dari 12 menjadi 20 detik untuk kamera yang lambat.
+- Membedakan kondisi tanpa frame/keyframe dari path, autentikasi, dan jaringan yang gagal.
+- Menandai segmen hasil transcode sebagai independen agar pemutaran dan reconnect lebih stabil.
+
+## v3.1.3 — RTSP Authentication Diagnostics & Secret Redaction
+
+- Memastikan error FFmpeg `401 Unauthorized` dijelaskan sebagai masalah akun/password atau izin RTSP, bukan masalah jaringan/path.
+- Menyensor password kamera pada perintah FFmpeg, log live, log rekaman, fallback, respons API, dan konsol server.
+- Mencegah kredensial RTSP terlihat ketika pengguna membuka atau membagikan log diagnostik.
+
+## v3.1.2 — Invalid Token saat Simpan Kamera
+
+- Menangani token lama yang tidak berlaku setelah instalasi atau perubahan `JWT_SECRET`.
+- Saat penyimpanan kamera menerima HTTP 401, aplikasi otomatis menghapus sesi lama dan membuka login.
+- Isian formulir kamera dipertahankan; setelah login pengguna cukup menekan Simpan kembali.
+- Menampilkan pesan khusus untuk token kedaluwarsa dan akun tanpa izin admin.
+
+## v3.1.1 — ZeroTier Backend Not Found Fix
+
+- Menambahkan endpoint ZeroTier ke backend MySQL/MariaDB, bukan hanya SQLite.
+- Memperbaiki pesan `not found` menjadi petunjuk pembaruan backend yang jelas.
+- Menyamakan fitur install, status, join, dan leave pada kedua backend.
+
+## v3.1.0 — ZeroTier dari Menu Network
+
+- Menambahkan pemasangan ZeroTier otomatis langsung dari dashboard tanpa terminal/SSH.
+- Menambahkan status service, status node, Node ID, versi, jaringan, interface, dan IP virtual.
+- Mendukung gabung jaringan memakai Network ID serta keluar jaringan dengan konfirmasi.
+- Mengaktifkan `zerotier-one` otomatis saat boot melalui systemd.
+- Memvalidasi Network ID secara ketat (16 karakter heksadesimal) dan menjalankan perintah tanpa shell input pengguna.
+- Seluruh aksi dibatasi untuk admin dan dicatat di Log Aktivitas.
+
+## v3.0.3 — INFO Bar Live Update Fix
+
+- Memperbaiki Baris INFO yang tidak berubah setelah `Teks Berjalan` disimpan.
+- Menyamakan state konfigurasi hasil API dengan state yang dibaca renderer kop instansi.
+- Menunggu proses muat ulang konfigurasi selesai sebelum menampilkan notifikasi berhasil.
+- Mengirim token login saat memuat pengaturan agar konfigurasi admin lengkap dan konsisten.
+
+## v3.0.2 — Unmistakable CCTV SVG Marker
+
+- Mengganti ikon berbasis font dengan SVG kamera CCTV mandiri agar bentuk kamera selalu tampil.
+- Mengubah penanda pusat CCTV yang sebelumnya bulat menjadi kamera berbadge bendera Indonesia.
+- Marker tidak bergantung pada Font Awesome dan tetap jelas pada semua browser/WebView.
+
+## v3.0.1 — Camera Map Marker
+
+- Mengganti penanda kamera di Peta Lokasi dari bulatan menjadi ikon kamera CCTV.
+- Warna ikon dan LED menunjukkan status: hijau online, merah offline, abu-abu tidak diketahui.
+- Menambahkan animasi denyut ringan untuk kamera online, efek hover, tooltip nama/status, dan posisi popup yang sesuai ikon baru.
+- Memperbarui legenda peta agar menggunakan simbol kamera.
+
+## v3.0.0 — Router Control UI
+
+- Mendesain ulang layout desktop dan mobile dengan sistem visual yang lebih modern, kontras, dan konsisten.
+- Menambahkan **Network Control Center** bergaya dashboard router: status internet, WAN, STB gateway, LAN kamera, DHCP, dan jumlah kamera terlihat dalam satu topologi.
+- Menambahkan navigasi cepat antarbagian Network (DHCP, antarmuka, WAN, LAN, dan pemindai kamera).
+- Memperbarui kartu Live CCTV, sidebar, panel, tabel, form, fokus keyboard, bayangan, dan tema terang.
+- Memperbaiki ketidaksesuaian validasi password di UI: kini minimal 8 karakter, sama dengan backend.
+- Memperbaiki bug rilis: folder `public/vendor` yang dirujuk UI ternyata tidak tersedia di repositori. Tailwind, HLS.js, Leaflet, QR scanner, Font Awesome, font, dan ikon peta kini benar-benar dibundel lokal.
+- Menambahkan konfigurasi build Tailwind yang dapat direproduksi (`tailwind.config.js` dan `src/tailwind.css`).
+- Seluruh aset tetap lokal/offline dan ringan untuk STB HG680P/B860H.
+
+
+## v2.9.22
+
+### 🐛 Perbaikan Bug Tampilan Kritis
+
+**Tampilan "acak-acakan" di lingkungan ber-CSP (iframe preview)** — Tailwind sebelumnya
+dibundel sebagai skrip runtime ("Play CDN") yang mengompilasi kelas lewat
+`eval`/`new Function`. Di lingkungan yang melarang eval demi keamanan (mis. iframe
+preview), skrip itu mati sehingga **seluruh utility Tailwind tidak terbentuk**: halaman
+terlihat tanpa style (font serif, tombol polos, blok biru raksasa).
+
+Solusi: Tailwind kini **dikompilasi statis saat build** menjadi `public/vendor/tailwind.css`
+(44KB, hanya kelas yang dipakai) lewat `npm run build:css`. CSS statis tidak butuh JS/eval —
+tampil benar di semua lingkungan, termasuk yang ber-CSP ketat dan STB offline.
+
+* `tailwind.config.js` + `src/tailwind.css` masuk repo agar build bisa diulang.
+* Uji `offline-v29.js` kini menolak kembalinya Play CDN dan memverifikasi isi utility CSS.
+
+## v2.9.21
+
+### 🐛 Perbaikan Bug Tampilan
+
+**Ikon gambar rusak di kop instansi** — bila logo belum diunggah, setiap refresh dasbor
+"membangkitkan" kembali `<img>` yang gagal dimuat (ikon gambar rusak di dalam kotak putih)
+dan menyembunyikan ikon perisai penggantinya. Sekarang status logo dicek dengan benar
+(`complete` + `naturalWidth`): logo gagal → perisai tampil permanen; logo ada → logo tampil.
+Ini penyebab tampilan terlihat "acak-acakan" pada instalasi baru yang belum punya logo.
+
+* Parameter cache `app.js`/`style.css` dinaikkan ke `?v=2.9.21` agar browser/proxy tidak
+  mencampur berkas lama dengan HTML baru.
+
+## v2.9.20
+
+### ✨ Fitur Baru
+
+**1. Tampil & streaming TANPA internet (semua pustaka dibundel lokal)**
+
+Sebelumnya halaman memuat **lima pustaka dari CDN** (Tailwind, Font Awesome, Leaflet,
+hls.js, html5-qrcode). Di STB yang hanya punya LAN (tanpa internet) halaman bisa runtuh:
+tata letak hancur, HLS tidak terputar, ikon hilang. Sekarang semuanya ada di
+`public/vendor/` dan dirujuk lokal — web CCTV tampil penuh dan stream HLS jalan walau
+internet mati total. Uji baru `tests/offline-v29.js` menjamin tidak ada CDN yang kembali
+masuk.
+
+**2. Skema IP default LAN CCTV + DHCP server agar kamera langsung dapat IP**
+
+Topologi yang didukung: **port LAN STB → switch hub → kamera-kamera**, tanpa router dan
+tanpa internet. Skema default dibuat tetap agar tidak bingung:
+
+| Peran | Alamat |
+|---|---|
+| STB (port LAN) | `192.168.77.1/24` |
+| Kamera statis (disarankan) | `192.168.77.2 – .99` |
+| Kamera otomatis (DHCP) | `192.168.77.100 – .200` |
+
+* Kartu baru di menu **Network**: *"Skema IP Default & DHCP untuk LAN CCTV"* dengan tombol
+  **Aktifkan DHCP Server Kamera** — memasang & menjalankan `dnsmasq` (conf drop-in
+  `/etc/dnsmasq.d/webcctv-lan.conf`), sehingga kamera yang dicolok ke switch hub langsung
+  mendapat IP `.100–.200`.
+* Endpoint baru `GET/POST /api/net/dhcp` (khusus admin; nama interface divalidasi).
+* Asisten Pembuat RTSP kini membuka dengan IP default `192.168.77.10` mengikuti skema.
+
+**3. Petunjuk di setiap kolom formulir kamera**
+
+Setiap kolom (Nama, Lokasi, RTSP URL, Tipe, Channel, YouTube ID, Latitude, Longitude, IP
+asisten) kini punya satu baris petunjuk kecil berisi contoh nilai dan makna kolom, dalam
+Indonesia + Inggris, supaya setup pertama tidak membingungkan.
+
+## v2.9.19
+
+### ✨ Penyempurnaan
+
+**Penyimpanan di kop kini menyebut disk mana yang diukur (HDD rekaman vs SD sistem)**
+
+Sebelumnya indikator **Penyimpanan** di kop hanya menampilkan persen, sehingga tidak jelas
+apakah angka itu hardisk rekaman atau justru SD card tempat sistem terinstal. Sekarang:
+
+* Di bawah persen muncul baris kecil: `HDD 210.0/465.0GB` bila rekaman berada di hardisk
+  eksternal, atau `SD 3.0/14.7GB` bila di kartu SD/eMMC sistem.
+* Deteksi otomatis dari tempat folder rekaman benar-benar berada (`df` pada folder rekaman):
+  perangkat `mmcblk*` / mount `/` = SD, perangkat `sd*` (USB) = HDD.
+* **Peringatan mismatch:** bila instalasi mengharapkan hardisk eksternal (penanda
+  `.hdd_expected` dibuat `mount-hdd.sh`) tetapi folder rekaman ternyata masih di SD, kop dan
+  panel rekaman menampilkan peringatan merah *"HDD diharapkan — rekaman masih di SD!"*
+  beserta saran perbaikan (jalankan `mount-hdd.sh` / periksa symlink `public/records`).
+* Panel penyimpanan di Dasbor kini ikut menulis `Disk rekaman: Hardisk/USB (<mount>)` atau
+  `SD/Sistem (/)` supaya tidak ambigu.
+
+## v2.9.18
+
+### ✨ Penyempurnaan
+
+**Baris INFO selalu berisi informasi & cara menggantinya lebih jelas**
+
+Sebelumnya, bila *Teks Berjalan* kosong, baris INFO (tag kuning) di kop hanya menampilkan
+tanda "—" sehingga terlihat kosong/mati. Sekarang:
+
+* Bila kolom teks berjalan **dikosongkan**, baris INFO **otomatis** diisi informasi sistem:
+  nama aplikasi, jumlah kamera online, dan tanggal hari ini — jadi selalu ada informasi.
+* Kolom di **Pengaturan → Pengaturan Tampilan Aplikasi** diganti nama menjadi
+  **"Teks Berjalan (Baris INFO)"** lengkap dengan petunjuk kecil yang menjelaskan persis
+  di mana teks itu tampil, supaya tidak bingung mencarinya.
+* Kolom tersebut kini **boleh dikosongkan** (tidak lagi wajib diisi) — kosong berarti
+  memakai info otomatis.
+* Setelah klik **Simpan Perubahan**, baris INFO langsung terisi tanpa perlu pindah menu
+  atau memuat ulang halaman.
+* Terjemahan Inggris untuk kolom baris atas kop (`setting_agency_line` + petunjuknya)
+  dilengkapi; sebelumnya mode Inggris menampilkan teks Indonesia sebagai fallback.
+
+## v2.9.17
+
+### ✨ Fitur Baru
+
+**Baris paling atas kop instansi kini bisa diedit**
+
+Baris kecil di paling atas kop (default: `SISTEM PEMANTAUAN CCTV TERPADU`) sebelumnya
+**hardcoded**, padahal baris itulah yang paling terlihat di kop. Sekarang menjadi kolom isian
+**"Baris Atas Kop"** di **Pengaturan → Pengaturan Tampilan Aplikasi**.
+
+Dengan ini **seluruh** informasi di kop bisa diedit tanpa mengubah kode:
+
+| Kolom di Pengaturan | Muncul di kop sebagai |
+|---|---|
+| **Baris Atas Kop** *(baru)* | Baris kecil paling atas |
+| **Nama Aplikasi** | Judul besar |
+| **Subtitle Aplikasi** | Baris di bawah nama |
+| **Teks Berjalan Utama** | Teks berjalan bertag INFO |
+
+* Setting baru `agency_line`, disimpan di tabel `settings` seperti setting lain.
+* Ditambahkan ke daftar `allowed` pada `PUT /api/settings`.
+* Kolom isian memakai `uppercase` agar konsisten dengan tampilan kop, dibatasi 80 karakter.
+
+### 🐛 Perbaikan Dokumentasi
+
+* Label di README diperbaiki agar **persis sama dengan label di layar**. Sebelumnya tertulis
+  "Subjudul" dan "Teks Berjalan", padahal di layar tertulis **"Subtitle Aplikasi"** dan
+  **"Teks Berjalan Utama"** — pengguna bisa tidak menemukan kolomnya.
+* Ditambahkan langkah bernomor untuk membuka panelnya (login admin → menu Pengaturan →
+  panel pertama "Pengaturan Tampilan Aplikasi"), karena panel Pengaturan berbentuk tumpukan
+  vertikal, bukan tab.
+
+### 🧪 Pengujian
+
+* Diverifikasi lewat API: nilai bawaan `agency_line` benar, `PUT /api/settings` menyimpannya,
+  dan nilainya terbaca kembali.
+* `npm test` tetap hijau.
+
+## v2.9.16
+
+### ✨ Perubahan Tampilan
+
+**Live CCTV jadi tampilan awal dan menu urutan pertama**
+
+* **Tampilan awal aplikasi kini LIVE CCTV**, bukan Dasbor. Saat aplikasi dibuka, yang
+  langsung terlihat adalah gambar kamera — bukan statistik. `currentView` diubah dari
+  `"dashboard"` menjadi `"live"`.
+* **Menu Live CCTV dipindah ke urutan pertama** di **sidebar desktop** dan **bottom nav
+  mobile**; Dasbor turun ke urutan kedua.
+* **Mode tamu** selalu diarahkan ke Live CCTV apa pun view sebelumnya. Sebelumnya memakai
+  daftar pengecualian yang harus diperbarui setiap ada menu baru; kini langsung diarahkan.
+
+### 🧪 Pengujian
+
+* Suite baru `tests/default-view-v29.js` (**6 asersi**, jsdom): `currentView` awal adalah
+  `live`, menu desktop urut `live → dashboard → …`, bottom nav mobile urut `live → dashboard
+  → …`, dan setelah boot **hanya `view-live` yang terlihat**.
+* `npm test` kini **862 asersi, 0 gagal**. Perintah baru: `npm run test:default`.
+
+### 📖 Dokumentasi
+
+README ditambah panduan langkah demi langkah **mengganti identitas instansi** (nama,
+subjudul, teks berjalan) dan **mengunggah logo**, termasuk batas ukuran berkas dan
+format yang diterima.
+
+## v2.9.15
+
+### ✨ Fitur Baru
+
+**Kop instansi & status bar gaya instansi pemerintahan**
+
+Bagian atas Dasbor kini berupa kop resmi seperti papan pantau instansi:
+
+* **Baris kop**: logo instansi (latar putih agar logo berwarna tetap terbaca),
+  nama instansi, subjudul, **jam digital besar**, tanggal panjang, dan lencana **LIVE**.
+  Garis emas tipis di atas meniru kop surat instansi.
+* **Baris status** enam indikator: Kamera Online/Total, Offline, Uptime STB, CPU (dengan
+  meter), Suhu, dan Penyimpanan (dengan meter).
+* **Teks berjalan resmi** dengan tag `INFO` berwarna emas.
+* **Identitas diambil dari Pengaturan** — nama instansi, subjudul, logo, dan teks berjalan
+  semuanya dari kolom yang sudah ada, jadi **tidak perlu mengubah kode** untuk mengganti
+  identitas instansi.
+* **Mode terang formal**: seluruh kop mengikuti tema yang sudah ada, jadi bisa dialihkan ke
+  tampilan terang formal saat ditampilkan ke publik/tamu.
+
+### 🐛 Perbaikan Bug
+
+* **Jam tampil dengan titik, bukan titik dua.** `formatServerClock()` memakai locale `id-ID`
+  yang memformat jam sebagai **`13.20.33`**. Itu memang konvensi penulisan Indonesia, tetapi
+  untuk jam digital di papan pantau harus **`13:20:33`**. Ditambahkan `formatGovClock()`
+  khusus yang memaksa format titik dua (dengan fallback manual bila `Intl` gagal).
+  `formatServerClock()` sengaja tidak diubah agar tidak merusak tampilan lain.
+* **`instanceof Date` gagal lintas realm.** Pemeriksaan `d instanceof Date` selalu `false`
+  bila objek Date dibuat di realm berbeda (mis. jsdom), sehingga tanggal selalu tampil `—`.
+  Diganti pemeriksaan `typeof d.getTime === "function"`.
+
+### 🎨 Aksesibilitas & tampilan
+
+* Teks berjalan menghormati `prefers-reduced-motion` — animasi dimatikan bagi pengguna yang
+  memintanya, teks tetap tampil statis.
+* Meter CPU/penyimpanan berubah warna sesuai tingkat keparahan: hijau < 75%, kuning 75–89%,
+  merah ≥ 90%.
+* Logo memakai latar putih agar logo instansi berwarna gelap tetap terbaca di tema gelap.
+
+### 🧪 Pengujian
+
+* Suite baru `tests/gov-ui-v29.js` (**46 asersi**, jsdom): seluruh elemen kop ada, format
+  tanggal panjang gaya instansi (ID & EN), format uptime, ambang warna meter,
+  `paintGovStats` mengisi semua indikator beserta lebar meter, **jam berformat HH:MM:SS
+  dengan titik dua** (regresi), dan identitas instansi benar-benar diambil dari Pengaturan.
+* `npm test` kini **856 asersi, 0 gagal**. Perintah baru: `npm run test:gov`.
+
+### 📝 Catatan
+
+* **Belum dilihat di browser sungguhan** — pengujian memakai jsdom yang tidak merender CSS.
+  Yang diverifikasi: struktur elemen, nilai yang diisi, format teks, dan logika ambang warna.
+  Tampilan visual akhir perlu Anda lihat langsung.
+* Identitas instansi **tidak di-hardcode**. Isi **Nama Aplikasi** dan **Subjudul** di
+  Pengaturan (mis. "Dinas Perhubungan Kota Serang" / "Bidang Lalu Lintas") dan unggah logo
+  instansi di panel **Logo, Favicon & Tema**.
+
 ## v2.9.14
 
 ### ✨ Fitur Baru

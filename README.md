@@ -1,4 +1,4 @@
-# Web-CCTV HG680P v2.9.7 (Release Produksi Stabil, Aman & Hemat Daya)
+# Web-CCTV HG680P v3.1.4 (Router Control UI + ZeroTier)
 
 Sistem Web-CCTV modern, ultra-ringan, hemat CPU, dan responsif mobile – dirancang khusus untuk berjalan secara optimal 24 jam non-stop pada perangkat **STB Armbian HG680P / B860H (Amlogic S905X)** dengan memori terbatas (1GB - 2GB RAM).
 
@@ -56,6 +56,132 @@ Untuk yang ingin langsung jalan. Rincian tiap langkah ada di bagian yang ditautk
 > Ada panduan langkah demi langkah khusus di
 > **[`TROUBLESHOOTING-RTSP.md`](TROUBLESHOOTING-RTSP.md)** — mulai dari cek subnet
 > (penyebab paling sering), sampai mencari path RTSP yang benar per merek kamera.
+
+#### Tambahan di v2.9.22
+
+| Perubahan | Penjelasan |
+|---|---|
+| 🧱 **Tailwind statis, tanpa eval** | Tailwind kini CSS hasil build (`public/vendor/tailwind.css`, dibuat dengan `npm run build:css`), bukan skrip runtime. Di lingkungan ber-CSP ketat yang memblokir `eval` (mis. iframe preview), tampilan tidak lagi "acak-acakan". |
+
+#### Tambahan di v2.9.20
+
+| Fitur | Penjelasan Singkat |
+|---|---|
+| 📦 **Tampil & streaming TANPA internet** | Semua pustaka (Tailwind, hls.js, Leaflet, Font Awesome, html5-qrcode) kini **dibundel lokal** di `public/vendor/`. Di STB yang hanya punya LAN, halaman tetap tampil utuh dan HLS tetap terputar — tidak ada lagi ketergantungan CDN. |
+| 🎯 **Skema IP default LAN CCTV** | STB `192.168.77.1/24` • kamera statis `192.168.77.2–.99` • kamera DHCP `.100–.200`. Satu skema tetap supaya tidak bingung saat setting. |
+| 🖱️ **Tombol sekali klik "Aktifkan DHCP Server Kamera"** | Di menu **Network** — memasang & menjalankan `dnsmasq` sehingga kamera yang dicolok ke switch hub **langsung mendapat IP** tanpa router/internet. |
+| 💬 **Petunjuk di setiap kolom formulir kamera** | Tiap kolom (Nama, Lokasi, RTSP, Tipe, Channel, YouTube, Lat/Lng) punya satu baris petunjuk berisi contoh nilai, dalam Indonesia + Inggris. |
+
+#### Tambahan di v2.9.19
+
+| Perubahan | Penjelasan |
+|---|---|
+| 🖥️ **Penyimpanan di kop menyebut disknya** | Di bawah persen Penyimpanan tertulis `HDD x/yGB` atau `SD x/yGB` — jelas disk mana yang diukur. Bila hardisk diharapkan tetapi rekaman masih masuk SD, muncul peringatan merah. |
+
+#### Tambahan di v2.9.18
+
+| Perubahan | Penjelasan |
+|---|---|
+| ℹ️ **Baris INFO tidak pernah kosong** | Bila *Teks Berjalan* kosong, baris INFO otomatis diisi info sistem (nama aplikasi, kamera online, tanggal). Kolomnya berganti nama menjadi **"Teks Berjalan (Baris INFO)"** dengan petunjuk. |
+
+#### Tambahan di v2.9.16
+
+| Perubahan | Penjelasan |
+|---|---|
+| 📺 **Live CCTV jadi tampilan awal** | Saat aplikasi dibuka, yang langsung tampil adalah **gambar kamera**, bukan Dasbor. Menu **Live CCTV** juga dipindah ke **urutan pertama** di sidebar dan bottom nav HP. |
+
+### Cara mengganti identitas instansi & mengunggah logo
+
+Semua lewat **Pengaturan**, tidak perlu mengubah kode sama sekali.
+
+**1. Nama & teks instansi**
+
+**Langkahnya:**
+
+1. Login sebagai **admin**
+2. Klik menu **Pengaturan** (ikon roda gigi) di sidebar kiri
+3. Panel pertama berjudul **"Pengaturan Tampilan Aplikasi"** — ini yang paling atas, tidak
+   perlu scroll jauh
+4. Isi kolom-kolomnya, lalu klik **"Simpan Perubahan"**
+
+| Kolom di layar | Isi dengan | Muncul di kop sebagai | Contoh |
+|---|---|---|---|
+| **Baris Atas Kop** | Baris kecil paling atas | Baris teratas kop (huruf kapital) | `PUSAT KENDALI LALU LINTAS` |
+| **Nama Aplikasi** | Nama instansi | Judul besar di kop | `Dinas Perhubungan Kota Serang` |
+| **Subtitle Aplikasi** | Bidang / wilayah | Baris kecil di bawah nama | `Bidang Lalu Lintas · Kota Serang` |
+| **Teks Berjalan (Baris INFO)** | Pengumuman resmi | Teks berjalan bertag INFO | `Selamat datang di Sistem Pemantauan CCTV Terpadu` |
+| **Kaki Halaman (Footer)** | Baris paling bawah | Footer halaman (bukan kop) | `© 2026 Dinas Perhubungan Kota Serang` |
+
+Dengan ini **seluruh** informasi di kop bisa diedit dari Pengaturan, tanpa mengubah kode.
+
+> **Baris INFO tidak pernah kosong:** bila kolom *Teks Berjalan (Baris INFO)* dikosongkan,
+> baris INFO otomatis diisi informasi sistem — nama aplikasi, jumlah kamera online,
+> dan tanggal hari ini — sehingga selalu ada informasi yang tampil (v2.9.18).
+
+Perubahan langsung terlihat di kop instansi, halaman login, dan footer — **tanpa perlu
+memuat ulang halaman**.
+
+**2. Mengunggah logo** — menu **Pengaturan → Logo, Favicon & Tema**
+
+Ada **tiga** logo yang bisa diunggah terpisah:
+
+| Tombol | Untuk | Muncul di |
+|---|---|---|
+| **Logo** | Logo utama instansi | Sidebar, header, dan **kop instansi** di Dasbor |
+| **Logo Halaman Login** | Logo khusus halaman masuk | Halaman login saja |
+| **Favicon** | Ikon kecil di tab browser | Tab browser & bookmark |
+
+**Cara mengunggah:**
+
+1. Buka **Pengaturan → Logo, Favicon & Tema**
+2. Klik tombol pilih berkas pada logo yang ingin diganti
+3. Pilih berkas **PNG** atau **JPEG** dari perangkat Anda
+4. Klik **Unggah**
+5. Pratinjau langsung muncul. Kalau tidak cocok, klik **Hapus** untuk kembali ke ikon bawaan
+
+**Batas ukuran & format:**
+
+| Logo | Maksimum |
+|---|---|
+| Logo & Logo Login | **1 MB** |
+| Favicon | **256 KB** |
+
+Format yang diterima: **PNG** atau **JPEG** saja. Berkas diperiksa dari *magic byte*-nya,
+jadi mengubah ekstensi berkas saja tidak akan lolos.
+
+> **Tips:** gunakan logo berlatar **transparan** (PNG). Kop instansi memberi latar putih
+> otomatis di belakang logo, jadi logo berwarna gelap tetap terbaca di tema gelap.
+> Ukuran ideal: **512×512 px** untuk logo, **64×64 px** untuk favicon.
+
+> **Kalau logo tidak muncul**, periksa: (1) format benar-benar PNG/JPEG, (2) ukuran tidak
+> melebihi batas, (3) muat ulang halaman dengan **Ctrl+Shift+R** untuk menghapus cache.
+
+#### Tambahan di v2.9.15
+
+| Fitur | Penjelasan Singkat |
+|---|---|
+| 🏛️ **Kop instansi & status bar profesional** | Bagian atas Dasbor kini berupa kop resmi: logo instansi, nama instansi, **jam digital besar**, tanggal panjang, lencana **LIVE**, lalu baris status **Kamera Online/Offline, Uptime STB, CPU, Suhu, Penyimpanan** (dengan meter berwarna), dan **teks berjalan** bertag INFO. Ada **mode terang formal** untuk ditampilkan ke publik. |
+
+**Cara memasang identitas instansi** (tanpa mengubah kode):
+
+1. **Pengaturan → Tampilan Aplikasi**
+   * **Nama Aplikasi** → mis. `Dinas Perhubungan Kota Serang`
+   * **Subjudul** → mis. `Bidang Lalu Lintas · Kota Serang`
+   * **Teks Berjalan (Baris INFO)** → pengumuman/pesan resmi; bila dikosongkan, baris INFO
+     otomatis terisi info sistem (nama aplikasi, kamera online, tanggal)
+2. **Pengaturan → Logo, Favicon & Tema** → unggah logo instansi (PNG). Logo otomatis diberi
+   latar putih agar tetap terbaca di tema gelap.
+3. Pilih **mode gelap** untuk ruang kontrol, atau **mode terang** untuk ditampilkan ke publik.
+
+> Meter CPU dan penyimpanan berubah warna otomatis: **hijau** < 75%, **kuning** 75–89%,
+> **merah** ≥ 90% — jadi kondisi kritis terlihat sekilas.
+
+> **Penyimpanan menyebut disknya (v2.9.19):** di bawah persen *Penyimpanan* tertulis disk
+> mana yang diukur — `HDD 210.0/465.0GB` bila rekaman berada di hardisk USB, atau
+> `SD 3.0/14.7GB` bila di kartu SD tempat sistem terinstal. Bila instalasi mengharapkan
+> hardisk (pernah menjalankan `mount-hdd.sh`) tetapi rekaman ternyata masih masuk SD, muncul
+> peringatan merah **"HDD diharapkan — rekaman masih di SD!"** — artinya symlink
+> `public/records` perlu diperbaiki dengan menjalankan ulang `sudo ./mount-hdd.sh`.
 
 #### Tambahan di v2.9.14
 
@@ -360,12 +486,12 @@ Proyek ini kini memiliki suite uji. Server harus sedang berjalan di port 3000:
 cd /root/web-cctv     # sesuaikan dengan lokasi folder proyek Anda
 
 node server.js &      # terminal 1 (backend SQLite, port 3000)
-npm test              # terminal 2 → 810 assertion
+npm test              # terminal 2 → 953 assertion
 ```
 
 | Perintah | Suite | Assertion |
 |---|---|---|
-| `npm run test:api` | API backend SQLite terhadap server hidup | 167 |
+| `npm run test:api` | API backend SQLite terhadap server hidup | 172 |
 | `npm run test:2fa` | 2FA/TOTP, divalidasi ke vektor resmi RFC 6238 | 41 |
 | `npm run test:ui` | `public/app.js` asli di dalam DOM nyata (jsdom) | 88 |
 | `npm run test:net` | Alamat IP & jalur kamera: unit `lib/netinfo.js` + endpoint HTTP | 113 |
@@ -375,6 +501,11 @@ npm test              # terminal 2 → 810 assertion
 | `npm run test:reset` | Tombol reset pengaturan (jsdom + server hidup) | 53 |
 | `npm run test:version` | Konsistensi versi di semua berkas | 21 |
 | `npm run test:reorder` | Atur urutan kamera (jsdom + server hidup) | 26 |
+| `npm run test:gov` | Kop instansi & status bar (jsdom) | 59 |
+| `npm run test:default` | Tampilan awal = Live CCTV (jsdom) | 6 |
+| `npm run test:offline` | Nol CDN + Tailwind statis tanpa eval (v2.9.20/22) | 23 |
+| `npm run test:dhcp` | DHCP server LAN CCTV: API + conf dnsmasq (v2.9.20) | 14 |
+| `npm run test:hints` | Petunjuk tiap kolom kamera + kartu DHCP (jsdom) | 33 |
 
 Suite Android dijalankan terpisah (butuh JDK 17 + Android SDK):
 
@@ -387,7 +518,7 @@ cd android-app && ./gradlew testDebugUnitTest     # → 32 uji, 0 gagal
 | `./gradlew testDebugUnitTest` | `UrlNormalizer` — normalisasi alamat APK | 32 |
 | `npm run test:mysql` | Backend MySQL terhadap MariaDB sungguhan | 62 |
 
-`npm test` menjalankan sebelas suite pertama (810 assertion). `test:mysql` dipisah karena
+`npm test` menjalankan enam belas suite pertama (953 assertion). `test:mysql` dipisah karena
 butuh MariaDB/MySQL yang sedang berjalan:
 
 ```bash
@@ -936,7 +1067,9 @@ Untuk mengganti nama aplikasi, teks berjalan, dan tulisan di kaki halaman.
 2. Isi:
    * **Nama Aplikasi** — muncul di sidebar, header ponsel, dan halaman login (maks. 500 karakter).
    * **Subtitle Aplikasi** — baris kecil di bawah nama.
-   * **Teks Berjalan Utama** — kalimat yang bergulir di bagian atas dashboard.
+   * **Teks Berjalan (Baris INFO)** — kalimat yang bergulir pada baris INFO di kop instansi.
+     Bila dikosongkan, baris INFO otomatis diisi info sistem (nama aplikasi, kamera online,
+     tanggal) sehingga tidak lagi menampilkan tanda "—".
    * **Kaki Halaman (Footer)** — tulisan di paling bawah halaman.
 3. Klik **Simpan Perubahan**.
 
@@ -1985,6 +2118,11 @@ chmod +x mount-hdd.sh
 sudo ./mount-hdd.sh
 ```
 *Pilih opsi **y** jika ingin memformat hardisk baru ke sistem berkas Ext4 Linux (Sangat Direkomendasikan), atau pilih **n** jika hardisk sudah memiliki data rekaman.*
+
+Setelah hardisk ter-mount, indikator **Penyimpanan** di kop instansi otomatis berubah dari
+`SD …GB` menjadi `HDD …GB` (v2.9.19) — bukti visual bahwa rekaman kini ditulis ke hardisk,
+bukan ke SD card. Bila yang terbaca masih `SD` padahal hardisk sudah dipasang, jalankan ulang
+`sudo ./mount-hdd.sh` untuk memperbaiki symlink folder rekaman.
 
 ### B. Fitur Ganda Double-Protection v2.9 (SANGAT KRUSIAL)
 Hardisk USB pada STB rawan terputus (*unmount*) sendiri secara tiba-tiba akibat **drop tegangan / arus USB port STB yang lemah** saat piringan berputar kencang. 

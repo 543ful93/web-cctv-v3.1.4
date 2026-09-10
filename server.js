@@ -22,6 +22,7 @@ const { createAiService } = require('./lib/ai');
 const netinfo = require('./lib/netinfo');
 const ffmpegProfiles = require('./lib/ffmpeg-profiles');
 const { createRcloneService } = require('./lib/rclone');
+const { createZeroTierService } = require('./lib/zerotier');
 // dotenv 17 mencetak banner tips ke stdout setiap start; dimatikan agar log
 // systemd/journalctl STB tetap bersih dan mudah di-grep.
 require('dotenv').config({ quiet: true });
@@ -438,6 +439,10 @@ try{
 const defaultSettings = {
   app_name: 'Web-CCTV',
   app_sub: 'HG680P',
+  // v2.9.17: baris paling atas kop instansi. Sebelumnya hardcoded sehingga
+  // tidak bisa diganti lewat Pengaturan, padahal baris inilah yang paling
+  // terlihat di kop.
+  agency_line: 'SISTEM PEMANTAUAN CCTV TERPADU',
   running_text: 'Selamat datang di Web-CCTV Live Streaming • H.265 → H.264 Transcode • Optimized STB Armbian HG680P • serangkota.go.id • CCTV Online 24 Jam',
   site_footer: `Web-CCTV HG680P v${APP_VERSION}`,
   // v2.8: notifikasi keluar (Telegram Bot / Webhook generik)
@@ -761,7 +766,7 @@ app.post('/api/reset/settings', auth('admin'), (req, res) => {
 app.put('/api/settings', auth('admin'), (req,res)=>{
   const data = req.body || {};
   const allowed = [
-    'app_name','app_sub','running_text','site_footer',
+    'app_name','app_sub','agency_line','running_text','site_footer',
     'notify_enabled','notify_telegram_token','notify_telegram_chat',
     'notify_webhook_url','notify_events',
     'access_local_url','access_public_url','access_prefer',
@@ -1276,6 +1281,49 @@ app.post('/api/tunnel/start', auth('admin'), async (req, res) => {
 app.post('/api/tunnel/stop', auth('admin'), (req, res) => {
   tunnelService.stop();
   res.json({ success: true, status: tunnelService.status() });
+});
+
+// ===== v3.1: ZEROTIER LANGSUNG DARI MENU NETWORK =====
+// Service systemd Web-CCTV berjalan sebagai root pada instalasi Armbian bawaan,
+// sehingga pemasangan, join, dan leave dapat dilakukan tanpa membuka terminal.
+const zeroTierService = createZeroTierService();
+
+app.get('/api/net/zerotier/status', auth('admin'), async (req, res) => {
+  try { res.json(await zeroTierService.status()); }
+  catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.post('/api/net/zerotier/install', auth('admin'), async (req, res) => {
+  try {
+    const result = await zeroTierService.install();
+    logActivity('zerotier.installed', `ZeroTier dipasang dari menu Network (${result.version || 'version unknown'})`, { req });
+    res.json(result);
+  } catch (err) {
+    logActivity('zerotier.install_failed', err.message, { req, level: 'error' });
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/net/zerotier/join', auth('admin'), async (req, res) => {
+  const networkId = String((req.body || {}).network_id || '').trim().toLowerCase();
+  try {
+    const result = await zeroTierService.join(networkId);
+    logActivity('zerotier.joined', `Bergabung ke jaringan ${networkId}`, { req });
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+app.post('/api/net/zerotier/leave', auth('admin'), async (req, res) => {
+  const networkId = String((req.body || {}).network_id || '').trim().toLowerCase();
+  try {
+    const result = await zeroTierService.leave(networkId);
+    logActivity('zerotier.left', `Keluar dari jaringan ${networkId}`, { req, level: 'warn' });
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
 });
 
 // ===== v2.9: INFO JARINGAN (khusus admin) =====
@@ -1871,6 +1919,41 @@ app.post('/api/net/onvif/:ip/set-ip', auth('admin'), async (req, res) => {
   } else {
     logActivity('net.onvif.set_ip', `Gagal ubah IP kamera ${ip}: ${result.error}${result.detail ? ' — ' + result.detail : ''}`, { req });
   }
+  res.json(result);
+});
+
+// ===== v2.9.20: DHCP server untuk LAN CCTV (dnsmasq) ======================
+// Kamera yang dicolok ke switch hub (tersambung port LAN STB) langsung mendapat
+// IP 192.168.77.100–200 tanpa router/internet. Skema default lihat lib/dhcp.js.
+const dhcpLib = require('./lib/dhcp');
+
+app.get('/api/net/dhcp', auth('admin'), async (req, res) => {
+  res.json(await dhcpLib.status());
+});
+
+app.post('/api/net/dhcp', auth('admin'), async (req, res) => {
+  const on = req.body?.enabled === true;
+  let result;
+  if (on) {
+    let iface = String(req.body?.iface || '').trim();
+    if (!iface) {
+      // Default: antarmuka berperan 'lan' di rencana tersimpan; bila tak ada, eth0.
+      try {
+        const plan = JSON.parse(settingValue(NET_PLAN_KEY, '[]') || '[]');
+        const lan = Array.isArray(plan) ? plan.find((p) => p.role === 'lan') : null;
+        iface = (lan && lan.iface) ? String(lan.iface) : 'eth0';
+      } catch { iface = 'eth0'; }
+    }
+    if (!/^[a-zA-Z0-9_.-]+$/.test(iface)) {
+      return res.status(400).json({ ok: false, error: 'Nama interface tidak valid' });
+    }
+    result = await dhcpLib.enable(iface);
+    result.iface = iface;
+    result.scheme = dhcpLib.LAN_SCHEME;
+  } else {
+    result = await dhcpLib.disable();
+  }
+  logActivity('net.dhcp', on ? `DHCP LAN CCTV diaktifkan (iface=${result.iface || '?'})` : 'DHCP LAN CCTV dinonaktifkan', { req });
   res.json(result);
 });
 
@@ -2895,8 +2978,8 @@ function startStream(cameraId, rtspUrl, camCodec = 'auto', camera = null){
   const logFile = path.join(LOG_DIR, `ff_${id}.log`);
   const logStream = fs.createWriteStream(logFile, {flags:'w'});
   const args = ffmpegLiveArgs(rtspUrl, outDir, camCodec, camera);
-  logStream.write(`START ${localNowSql()} ${APP_TIMEZONE}\nffmpeg ${args.join(' ')}\n\n`);
-  console.log(`▶ stream ${id}: ${rtspUrl}`);
+  logStream.write(`START ${localNowSql()} ${APP_TIMEZONE}\nffmpeg ${args.map(maskUrlSecrets).join(' ')}\n\n`);
+  console.log(`▶ stream ${id}: ${maskUrlSecrets(rtspUrl)}`);
   const ff = spawn('ffmpeg', args);
   let lastErr = '';
   let logEnded = false;
@@ -2910,7 +2993,7 @@ function startStream(cameraId, rtspUrl, camCodec = 'auto', camera = null){
   };
   ff.stderr.on('data', d=>{
     if (logEnded) return;
-    const s = d.toString();
+    const s = maskUrlSecrets(d.toString());
     try { logStream.write(s); } catch {}
     lastErr = s.slice(-400);
   });
@@ -2988,8 +3071,8 @@ function startStreamMinimal(cameraId, rtspUrl){
     '-f', 'hls', '-hls_time', '2', '-hls_list_size', '6',
     path.join(outDir,'index.m3u8')
   ];
-  logStream.write(`\n\nFALLBACK ${localNowSql()} ${APP_TIMEZONE}\nffmpeg ${args.join(' ')}\n\n`);
-  console.log(`▶ stream fallback ${id}: ${rtspUrl}`);
+  logStream.write(`\n\nFALLBACK ${localNowSql()} ${APP_TIMEZONE}\nffmpeg ${args.map(maskUrlSecrets).join(' ')}\n\n`);
+  console.log(`▶ stream fallback ${id}: ${maskUrlSecrets(rtspUrl)}`);
   const ff = spawn('ffmpeg', args);
   let lastErr = '';
   let logEnded = false;
@@ -3000,7 +3083,7 @@ function startStreamMinimal(cameraId, rtspUrl){
   };
   ff.stderr.on('data', d=>{
     if (logEnded) return;
-    const s = d.toString();
+    const s = maskUrlSecrets(d.toString());
     try { logStream.write(s); } catch {}
     lastErr = s.slice(-400);
   });
@@ -3059,7 +3142,9 @@ app.post('/api/stream/:id/start', authOptional, async (req,res)=>{
   startStream(cam.id, streamUrl, cam.codec, cam);
   const outM3u8 = path.join(HLS_DIR, String(cam.id), 'index.m3u8');
   let defaultFailed = false;
-  for(let i=0;i<24;i++){
+  // Tunggu maksimal 20 detik. Batas lama 12 detik lebih pendek dari GOP bawaan
+  // sejumlah kamera, sehingga stream sehat dihentikan sebelum playlist pertama.
+  for(let i=0;i<40;i++){
     await new Promise(r=>setTimeout(r,500));
     if(fs.existsSync(outM3u8)) return res.json({success:true, hls:`/streams/${cam.id}/index.m3u8`});
     const s = activeStreams.get(String(cam.id));
@@ -3070,7 +3155,7 @@ app.post('/api/stream/:id/start', authOptional, async (req,res)=>{
   if(defaultFailed){
     console.log(`🔄 Stream ${cam.id} gagal dengan argumen default. Mencoba fallback minimal...`);
     startStreamMinimal(cam.id, streamUrl);
-    for(let i=0;i<20;i++){
+    for(let i=0;i<40;i++){
       await new Promise(r=>setTimeout(r,500));
       if(fs.existsSync(outM3u8)) return res.json({success:true, hls:`/streams/${cam.id}/index.m3u8`, fallback:true});
       const s = activeStreams.get(String(cam.id));
@@ -3089,7 +3174,16 @@ app.post('/api/stream/:id/start', authOptional, async (req,res)=>{
     logTail = s?.lastErr ? s.lastErr() : 'Tidak ada log. FFmpeg mungkin tidak terinstall atau URL salah.';
   }
   stopStream(cam.id);
-  const parsed = parseFfmpegError(logTail);
+  // Bila file hanya berisi header START/perintah ffmpeg tanpa satu pun pesan,
+  // proses tidak crash: kamera tersambung tetapi tidak mengirim frame/keyframe.
+  // Jangan tampilkan pesan generik yang membuat pengguna mengejar path yang salah.
+  const meaningfulLog = String(logTail)
+    .split('\n')
+    .filter(line => line.trim() && !/^(START|FALLBACK|ffmpeg\s)/i.test(line.trim()))
+    .join('\n').trim();
+  const parsed = meaningfulLog
+    ? parseFfmpegError(meaningfulLog)
+    : { type: 'no_frames', message: 'RTSP tersambung tetapi kamera belum mengirim frame/keyframe. Coba Sub Stream H.264, turunkan FPS, atau periksa pengaturan video kamera.' };
   res.status(500).json({error: parsed.message, error_type: parsed.type, log: logTail});
 });
 app.post('/api/stream/:id/stop', auth('admin'), (req,res)=>{ res.json({success: stopStream(req.params.id)}); });
@@ -3699,7 +3793,7 @@ function startRecord(camera) {
   const statusObj = camStatus.get(camera.id) || { online: true, msg: 'tcp' };
   const useTcp = (statusObj.msg && statusObj.msg.includes('tcp')) || statusObj.online === true;
   const args = recordArgs(streamUrl, outPath, duration, camera.codec, useTcp, camera);
-  logStream.write(`START ${start_time} ${APP_TIMEZONE}\nffmpeg ${args.join(' ')}\n\n`);
+  logStream.write(`START ${start_time} ${APP_TIMEZONE}\nffmpeg ${args.map(maskUrlSecrets).join(' ')}\n\n`);
 
   const ff = spawn('ffmpeg', args, { stdio: ['ignore', 'ignore', 'pipe'] });
   const activeRecord = {
@@ -3715,7 +3809,7 @@ function startRecord(camera) {
   };
   activeRecords.set(cameraKey, activeRecord);
 
-  ff.stderr.on('data', data => logStream.write(data.toString()));
+  ff.stderr.on('data', data => logStream.write(maskUrlSecrets(data.toString())));
 
   let finalized = false;
   const finalizeRecord = (code, spawnError = null) => {
@@ -4076,27 +4170,41 @@ function recordsSizeMb(force = false) {
 // disk space helper
 function getDiskSpace() {
   return new Promise((resolve) => {
-    const fallback = { total_gb: '16.0', used_gb: '8.0', free_gb: '8.0', used_percent: 50 };
+    const fallback = { total_gb: '16.0', used_gb: '8.0', free_gb: '8.0', used_percent: 50,
+                       device: '', mount: '/', storage_kind: 'sd', hdd_mismatch: false };
     if (process.platform === 'win32') {
       return resolve(fallback);
     }
     const { exec } = require('child_process');
-    exec(`df -m "${RECORD_DIR}"`, (err, stdout) => {
+    // -P = format POSIX satu baris, agar nama device/mount panjang tidak terlipat.
+    exec(`df -mP "${RECORD_DIR}"`, (err, stdout) => {
       if (err || !stdout) return resolve(fallback);
       try {
         const lines = stdout.trim().split('\n');
         if (lines.length < 2) return resolve(fallback);
         // Parse columns: Filesystem, 1M-blocks, Used, Available, Use%, Mounted on
         const parts = lines[1].replace(/\s+/g, ' ').split(' ');
+        const device = parts[0];
         const totalMb = parseInt(parts[1]);
         const usedMb = parseInt(parts[2]);
         const freeMb = parseInt(parts[3]);
         const percent = parseInt(parts[4].replace('%', ''));
+        const mount = parts.slice(5).join(' ') || '/';
+        // v2.9.19: sebutkan disk yang DIUKUR = tempat rekaman benar-benar ditulis.
+        // mmcblk* = kartu SD/eMMC (disk sistem); selain itu (sda*, sdb*, /dev/sd*)
+        // = hardisk/USB eksternal.
+        const storage_kind = (/mmcblk|\/dev\/root|overlay|rootfs/.test(device) || mount === '/') ? 'sd' : 'hdd';
+        let hdd_mismatch = false;
+        try { hdd_mismatch = storage_kind === 'sd' && hddExpected(); } catch { /* abaikan */ }
         resolve({
           total_gb: (totalMb / 1024).toFixed(1),
           used_gb: (usedMb / 1024).toFixed(1),
           free_gb: (freeMb / 1024).toFixed(1),
-          used_percent: percent
+          used_percent: percent,
+          device,
+          mount,
+          storage_kind,
+          hdd_mismatch
         });
       } catch {
         resolve(fallback);

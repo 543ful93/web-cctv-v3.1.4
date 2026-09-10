@@ -523,3 +523,597 @@ body.light-mode code {
 /* Scrollbar agar serasi */
 body.light-mode ::-webkit-scrollbar-thumb { background-color: #cbd5e1; }
 body.light-mode ::-webkit-scrollbar-track { background-color: #f1f5f9; }
+
+/* =====================================================================
+   v2.9.15 — KOP INSTANSI & STATUS BAR GAYA INSTANSI PEMERINTAHAN
+   ---------------------------------------------------------------------
+   Dipakai di atas Dasbor. Mengikuti variabel tema yang sudah ada
+   (--accent-*) sehingga mode terang/gelap ikut menyesuaikan.
+   ===================================================================== */
+
+.gov-header {
+  background-color: #0b1220;
+}
+
+/* Baris kop: garis emas tipis di atas, seperti kop surat instansi */
+.gov-header > div:first-child {
+  border-top: 3px solid #d4a017;
+}
+
+/* Setiap sel indikator */
+.gov-stat {
+  background-color: #0f172a;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.gov-stat-label {
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #64748b;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gov-stat-value {
+  font-size: 15px;
+  font-weight: 700;
+  color: #e2e8f0;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (min-width: 768px) {
+  .gov-stat { padding: 10px 14px; }
+  .gov-stat-value { font-size: 18px; }
+}
+
+/* Meter tipis untuk CPU & penyimpanan */
+.gov-meter {
+  height: 3px;
+  background-color: #1e293b;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 3px;
+}
+
+.gov-meter-fill {
+  height: 100%;
+  transition: width 0.4s ease, background-color 0.4s ease;
+}
+
+/* v2.9.19: baris kecil penunjuk disk mana yang diukur (HDD rekaman / SD sistem) */
+.gov-stat-sub {
+  font-size: 9px;
+  letter-spacing: 0.04em;
+  color: #94a3b8;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.gov-stat-sub.gov-stat-warn {
+  color: #f87171;
+  font-weight: 700;
+}
+
+/* Teks berjalan resmi */
+.gov-ticker {
+  display: flex;
+  align-items: center;
+  background-color: #0b1220;
+  overflow: hidden;
+  height: 26px;
+}
+
+.gov-ticker-tag {
+  flex-shrink: 0;
+  background-color: #d4a017;
+  color: #0b1220;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  padding: 3px 8px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.gov-ticker-track {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.gov-ticker-text {
+  display: inline-block;
+  padding-left: 100%;
+  font-size: 11px;
+  color: #cbd5e1;
+  animation: gov-ticker-scroll 38s linear infinite;
+}
+
+@keyframes gov-ticker-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gov-ticker-text { animation: none; padding-left: 8px; }
+}
+
+/* ---- Mode terang: kop jadi formal terang ---- */
+body.light-mode .gov-header { background-color: #f8fafc; }
+body.light-mode .gov-header > div:first-child {
+  background: linear-gradient(to right, #ffffff, #f1f5f9);
+  border-bottom-color: #e2e8f0;
+}
+body.light-mode .gov-stat { background-color: #ffffff; }
+body.light-mode .gov-stat-label { color: #64748b; }
+body.light-mode .gov-stat-value { color: #0f172a; }
+body.light-mode .gov-meter { background-color: #e2e8f0; }
+body.light-mode .gov-stat-sub { color: #64748b; }
+body.light-mode .gov-stat-sub.gov-stat-warn { color: #b91c1c; }
+body.light-mode .gov-ticker { background-color: #f1f5f9; border-top-color: #e2e8f0; }
+body.light-mode .gov-ticker-text { color: #334155; }
+
+/* =====================================================================
+   v3.0 — ROUTER CONTROL UI
+   Tampilan baru: lebih bersih, padat, konsisten, dan mudah dipindai pada
+   monitor ruang kontrol maupun layar ponsel. Tidak memakai resource CDN.
+   ===================================================================== */
+:root {
+  --ui-bg: #070b14;
+  --ui-surface: #0d1422;
+  --ui-surface-2: #111b2d;
+  --ui-border: rgba(148, 163, 184, .14);
+  --ui-border-strong: rgba(148, 163, 184, .24);
+  --ui-shadow: 0 18px 50px rgba(0, 0, 0, .24);
+  --ui-radius: 16px;
+}
+
+body {
+  background:
+    radial-gradient(circle at 78% -10%, color-mix(in srgb, var(--accent-600) 18%, transparent), transparent 32rem),
+    var(--ui-bg) !important;
+}
+
+#ticker-bar {
+  background: color-mix(in srgb, var(--accent-600) 88%, #07101e) !important;
+  border-bottom: 1px solid rgba(255,255,255,.12);
+}
+
+#sidebar {
+  width: 17rem;
+  background: rgba(9, 15, 26, .94) !important;
+  border-color: var(--ui-border) !important;
+  box-shadow: 16px 0 50px rgba(0,0,0,.16);
+  backdrop-filter: blur(20px);
+}
+
+#sidebar > div:first-child { min-height: 72px; }
+#nav-menu { padding: 14px 12px; gap: 3px; }
+#nav-menu .nav-item {
+  min-height: 44px;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  color: #94a3b8;
+}
+#nav-menu .nav-item i { color: #64748b; transition: color .2s ease; }
+#nav-menu .nav-item:hover {
+  background: rgba(148,163,184,.07) !important;
+  border-color: var(--ui-border);
+}
+#nav-menu .nav-item.active {
+  color: #fff !important;
+  background: linear-gradient(110deg, color-mix(in srgb, var(--accent-600) 85%, #111827), color-mix(in srgb, var(--accent-900) 72%, #111827)) !important;
+  border: 1px solid color-mix(in srgb, var(--accent-400) 32%, transparent) !important;
+  border-left-width: 1px !important;
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--accent-600) 22%, transparent);
+}
+#nav-menu .nav-item.active i { color: #fff; }
+
+#app-container main { background: transparent !important; }
+#view-container { padding-top: 4.25rem !important; }
+.view-section > div.bg-slate-900,
+.network-panel,
+#storage-status-panel {
+  border-color: var(--ui-border) !important;
+  box-shadow: 0 10px 32px rgba(0,0,0,.13) !important;
+}
+
+/* Kartu live CCTV lebih sinematik dan status lebih mudah dibaca. */
+#live-cameras-grid > [data-reorder-id] {
+  border-color: var(--ui-border) !important;
+  border-radius: var(--ui-radius) !important;
+  background: linear-gradient(155deg, rgba(17,27,45,.97), rgba(10,16,28,.97)) !important;
+  box-shadow: var(--ui-shadow) !important;
+  transform: translateY(0);
+}
+#live-cameras-grid > [data-reorder-id]:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--accent-400) 45%, transparent) !important;
+  box-shadow: 0 20px 55px rgba(0,0,0,.34) !important;
+}
+#live-cameras-grid > [data-reorder-id] .aspect-video { background: #020408; }
+#live-cameras-grid > [data-reorder-id] .aspect-video::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent 58%, rgba(2,6,23,.36));
+}
+
+/* Panel network seperti halaman administrasi router. */
+.router-console {
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--accent-500) 24%, var(--ui-border));
+  border-radius: 20px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--accent-900) 22%, transparent), transparent 44%),
+    linear-gradient(145deg, #101a2b, #090f1b);
+  box-shadow: 0 24px 70px rgba(0,0,0,.28);
+}
+.router-console-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 22px 14px;
+}
+.router-eyebrow {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--accent-400);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .16em;
+}
+.router-console h3 { color: #f8fafc; font-size: 20px; font-weight: 800; line-height: 1.2; }
+.router-console-head p { margin-top: 4px; color: #7f8da3; font-size: 11px; }
+.router-health {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  padding: 7px 10px;
+  border: 1px solid rgba(148,163,184,.16);
+  border-radius: 999px;
+  background: rgba(2,6,23,.42);
+  color: #94a3b8;
+  font-size: 10px;
+  font-weight: 700;
+}
+.router-health-dot { width: 7px; height: 7px; border-radius: 50%; background: #f59e0b; box-shadow: 0 0 12px #f59e0b; }
+.router-health.is-online { color: #6ee7b7; border-color: rgba(16,185,129,.28); }
+.router-health.is-online .router-health-dot { background: #10b981; box-shadow: 0 0 14px #10b981; }
+.router-health.is-offline { color: #fda4af; border-color: rgba(244,63,94,.28); }
+.router-health.is-offline .router-health-dot { background: #f43f5e; box-shadow: 0 0 14px #f43f5e; }
+
+.router-topology {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) 22px minmax(0,1.2fr) 22px minmax(0,1fr) 22px minmax(0,1fr);
+  align-items: center;
+  padding: 12px 22px 22px;
+}
+.router-node {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 10px;
+  min-height: 64px;
+  padding: 10px 12px;
+  border: 1px solid var(--ui-border);
+  border-radius: 13px;
+  background: rgba(2,6,23,.42);
+}
+.router-node-main { border-color: color-mix(in srgb, var(--accent-500) 42%, transparent); background: color-mix(in srgb, var(--accent-900) 20%, rgba(2,6,23,.6)); }
+.router-node-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  color: var(--accent-300);
+  background: color-mix(in srgb, var(--accent-600) 18%, transparent);
+}
+.router-node b, .router-node small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.router-node b { color: #e5edf8; font-size: 11px; }
+.router-node small { margin-top: 3px; color: #74839a; font-size: 9px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.router-link { color: color-mix(in srgb, var(--accent-400) 55%, #475569); text-align: center; font-size: 10px; }
+.router-quick-nav {
+  display: flex;
+  gap: 4px;
+  padding: 8px 12px;
+  overflow-x: auto;
+  border-top: 1px solid var(--ui-border);
+  background: rgba(2,6,23,.28);
+  scrollbar-width: none;
+}
+.router-quick-nav::-webkit-scrollbar { display: none; }
+.router-quick-nav a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  padding: 7px 10px;
+  border-radius: 8px;
+  color: #8795aa;
+  font-size: 10px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.router-quick-nav a:hover { color: #fff; background: rgba(148,163,184,.09); }
+.network-panel { scroll-margin-top: 18px; }
+.network-panel > h3:first-child { letter-spacing: -.01em; }
+
+/* Form dan tabel: target sentuh lebih baik serta fokus konsisten. */
+input, select, textarea { border-color: var(--ui-border-strong) !important; }
+input:focus, select:focus, textarea:focus {
+  border-color: var(--accent-500) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-500) 14%, transparent) !important;
+}
+button { -webkit-tap-highlight-color: transparent; }
+button:focus-visible, a:focus-visible { outline: 2px solid var(--accent-400); outline-offset: 2px; }
+thead { letter-spacing: .045em; }
+
+body.light-mode {
+  --ui-bg: #f2f5f9;
+  --ui-surface: #ffffff;
+  --ui-surface-2: #f8fafc;
+  --ui-border: rgba(15,23,42,.10);
+  --ui-border-strong: rgba(15,23,42,.18);
+  --ui-shadow: 0 18px 45px rgba(15,23,42,.10);
+}
+body.light-mode #sidebar { background: rgba(255,255,255,.94) !important; }
+body.light-mode .router-console {
+  background: linear-gradient(145deg, #fff, #f3f7fb);
+  box-shadow: var(--ui-shadow);
+}
+body.light-mode .router-console h3,
+body.light-mode .router-node b { color: #0f172a; }
+body.light-mode .router-node { background: rgba(255,255,255,.82); }
+body.light-mode .router-node-main { background: color-mix(in srgb, var(--accent-500) 8%, #fff); }
+body.light-mode .router-quick-nav { background: rgba(241,245,249,.75); }
+body.light-mode .router-quick-nav a:hover { color: #0f172a; background: #e2e8f0; }
+body.light-mode #live-cameras-grid > [data-reorder-id] { background: #fff !important; }
+
+@media (max-width: 900px) {
+  .router-topology { grid-template-columns: 1fr 16px 1fr; gap: 8px 0; }
+  .router-topology .router-link:nth-of-type(2) { display: none; }
+}
+@media (max-width: 767px) {
+  #view-container { padding: .875rem .875rem calc(5.6rem + env(safe-area-inset-bottom, 0px)) !important; }
+  .router-console-head { padding: 16px 14px 10px; }
+  .router-console-head p { display: none; }
+  .router-health { padding: 6px 8px; }
+  .router-topology { grid-template-columns: 1fr; padding: 8px 14px 16px; gap: 6px; }
+  .router-link { transform: rotate(90deg); }
+  .router-topology .router-link:nth-of-type(2) { display: block; }
+  .router-node { min-height: 54px; }
+  #live-cameras-grid { gap: 14px; }
+}
+
+/* v3.0.1 — Penanda peta berbentuk kamera CCTV */
+.cctv-map-marker-wrap {
+  background: transparent !important;
+  border: 0 !important;
+}
+.cctv-map-marker {
+  --marker-color: #64748b;
+  position: relative;
+  width: 42px;
+  height: 50px;
+  filter: drop-shadow(0 8px 10px rgba(2, 6, 23, .42));
+  transition: transform .18s ease, filter .18s ease;
+}
+.cctv-map-marker:hover {
+  transform: translateY(-3px) scale(1.08);
+  filter: drop-shadow(0 12px 14px rgba(2, 6, 23, .5));
+}
+.cctv-map-marker-body {
+  position: absolute;
+  z-index: 3;
+  left: 3px;
+  top: 2px;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  color: #fff;
+  font-size: 15px;
+  border: 2px solid rgba(255,255,255,.9);
+  border-radius: 12px;
+  background: linear-gradient(145deg, color-mix(in srgb, var(--marker-color) 82%, #fff), color-mix(in srgb, var(--marker-color) 82%, #020617));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.25);
+}
+.cctv-map-marker-tip {
+  position: absolute;
+  z-index: 2;
+  left: 15px;
+  top: 31px;
+  width: 12px;
+  height: 12px;
+  border-right: 2px solid rgba(255,255,255,.9);
+  border-bottom: 2px solid rgba(255,255,255,.9);
+  border-radius: 0 0 3px 0;
+  background: var(--marker-color);
+  transform: rotate(45deg);
+}
+.cctv-map-marker-led {
+  position: absolute;
+  z-index: 5;
+  top: 1px;
+  right: 1px;
+  width: 9px;
+  height: 9px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: var(--marker-color);
+  box-shadow: 0 0 9px var(--marker-color);
+}
+.cctv-map-marker-pulse {
+  position: absolute;
+  z-index: 1;
+  left: 3px;
+  top: 2px;
+  width: 36px;
+  height: 36px;
+  border: 2px solid var(--marker-color);
+  border-radius: 12px;
+  opacity: .36;
+}
+.cctv-map-marker.is-online .cctv-map-marker-pulse {
+  animation: cctv-marker-pulse 1.9s ease-out infinite;
+}
+@keyframes cctv-marker-pulse {
+  0% { transform: scale(.9); opacity: .5; }
+  75%, 100% { transform: scale(1.45); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cctv-map-marker.is-online .cctv-map-marker-pulse { animation: none; }
+}
+
+/* v3.0.2 — SVG kamera mandiri: bentuk kamera tetap terlihat walau font ikon gagal. */
+.cctv-svg-marker {
+  --marker-color: #64748b;
+  position: relative;
+  width: 54px;
+  height: 48px;
+  transition: transform .18s ease, filter .18s ease;
+  filter: drop-shadow(0 8px 7px rgba(2, 6, 23, .48));
+}
+.cctv-svg-marker:hover {
+  transform: translateY(-3px) scale(1.1);
+  filter: drop-shadow(0 12px 10px rgba(2, 6, 23, .55));
+}
+.cctv-svg-marker svg {
+  position: relative;
+  z-index: 3;
+  display: block;
+  width: 54px;
+  height: 45px;
+  overflow: visible;
+}
+.cctv-svg-housing,
+.cctv-svg-lens { fill: var(--marker-color); stroke: #fff; stroke-width: 2; stroke-linejoin: round; }
+.cctv-svg-glass { fill: #07101e; stroke: #fff; stroke-width: 2; }
+.cctv-svg-stand { fill: #e2e8f0; stroke: #fff; stroke-width: 1; stroke-linejoin: round; }
+.cctv-svg-marker-led {
+  position: absolute;
+  z-index: 5;
+  top: 7px;
+  left: 40px;
+  width: 8px;
+  height: 8px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: var(--marker-color);
+  box-shadow: 0 0 10px var(--marker-color);
+}
+.cctv-svg-marker-pulse {
+  position: absolute;
+  z-index: 1;
+  left: 4px;
+  top: 7px;
+  width: 40px;
+  height: 30px;
+  border: 3px solid var(--marker-color);
+  border-radius: 8px;
+  opacity: .4;
+}
+.cctv-svg-marker.is-online .cctv-svg-marker-pulse,
+.cctv-hq-marker .cctv-svg-marker-pulse { animation: cctv-svg-pulse 1.9s ease-out infinite; }
+.cctv-hq-flag {
+  position: absolute;
+  z-index: 6;
+  top: -8px;
+  left: -5px;
+  display: grid;
+  place-items: center;
+  width: 21px;
+  height: 17px;
+  border: 1px solid rgba(255,255,255,.9);
+  border-radius: 4px;
+  background: #fff;
+  font-size: 12px;
+  line-height: 1;
+  box-shadow: 0 3px 8px rgba(2,6,23,.35);
+}
+@keyframes cctv-svg-pulse {
+  0% { transform: scale(.9); opacity: .5; }
+  75%, 100% { transform: scale(1.4); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cctv-svg-marker.is-online .cctv-svg-marker-pulse,
+  .cctv-hq-marker .cctv-svg-marker-pulse { animation: none; }
+}
+
+/* v3.1 — ZeroTier control panel */
+.zerotier-logo {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 auto;
+  border-radius: 9px;
+  color: #fff;
+  background: linear-gradient(145deg, #f59e0b, #d97706);
+  box-shadow: 0 7px 18px rgba(245,158,11,.22);
+}
+.zerotier-stat {
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--ui-border);
+  border-radius: 11px;
+  background: rgba(2,6,23,.36);
+}
+.zerotier-stat span,
+.zerotier-stat strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.zerotier-stat span { color: #64748b; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+.zerotier-stat strong { margin-top: 4px; color: #cbd5e1; font-size: 11px; }
+.zerotier-network-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--ui-border);
+  border-radius: 12px;
+  background: rgba(2,6,23,.38);
+}
+.zerotier-status {
+  display: inline-flex;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .05em;
+}
+.zerotier-status.is-ok { color: #6ee7b7; background: rgba(16,185,129,.12); border: 1px solid rgba(16,185,129,.22); }
+.zerotier-status.is-wait { color: #fcd34d; background: rgba(245,158,11,.12); border: 1px solid rgba(245,158,11,.22); }
+.zerotier-ip {
+  display: inline-flex;
+  padding: 3px 7px;
+  border: 1px solid rgba(14,165,233,.24);
+  border-radius: 7px;
+  color: #7dd3fc;
+  background: rgba(14,165,233,.09);
+  font: 600 10px ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+body.light-mode .zerotier-stat,
+body.light-mode .zerotier-network-card { background: #fff; }
+body.light-mode .zerotier-stat strong { color: #1e293b; }
+@media (max-width: 520px) {
+  .zerotier-network-card { align-items: flex-start; flex-direction: column; }
+}

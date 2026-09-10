@@ -28,30 +28,13 @@
   <link rel="icon" type="image/png" href="/favicon.png">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📹</text></svg>">
   
-  <!-- CDNs for styling, icons, mapping, and HLS streaming -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              50: '#f0f7ff',
-              100: '#e0effe',
-              500: '#3b82f6',
-              600: '#2563eb',
-              700: '#1d4ed8',
-              900: '#1e3a8a',
-            }
-          }
-        }
-      }
-    }
-  </script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <link rel="stylesheet" href="/style.css?v=2.8.0">
+  <!-- v2.9.22: Tailwind dikompilasi STATIS saat build (public/vendor/tailwind.css).
+       Versi runtime "Play CDN" butuh eval/new Function yang diblokir CSP di
+       sebagian lingkungan (iframe preview) dan membuat tampilan acak-acakan. -->
+  <link rel="stylesheet" href="/vendor/fontawesome/css/all.min.css">
+  <link rel="stylesheet" href="/vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="/style.css?v=3.1.4">
+  <link rel="stylesheet" href="/vendor/tailwind.css?v=2.9.22">
 </head>
 <body class="flex flex-col h-full overflow-hidden font-sans select-none antialiased">
 
@@ -128,13 +111,13 @@
 
       <!-- Navigation Menu (Desktop & Drawer list) -->
       <nav id="nav-menu" class="flex-1 flex flex-col p-3 space-y-1 overflow-y-auto">
-        <button data-view="dashboard" class="nav-item admin-only hidden flex items-center space-x-3 px-4 py-2.5 rounded-lg text-sm font-medium transition text-slate-300 hover:bg-slate-800 hover:text-white">
-          <i class="fa-solid fa-chart-line w-5 text-center"></i>
-          <span data-i18n="menu_dashboard">Dasbor</span>
-        </button>
         <button data-view="live" class="nav-item flex items-center space-x-3 px-4 py-2.5 rounded-lg text-sm font-medium transition text-slate-300 hover:bg-slate-800 hover:text-white">
           <i class="fa-solid fa-tv w-5 text-center"></i>
           <span data-i18n="menu_live">Live CCTV</span>
+        </button>
+        <button data-view="dashboard" class="nav-item admin-only hidden flex items-center space-x-3 px-4 py-2.5 rounded-lg text-sm font-medium transition text-slate-300 hover:bg-slate-800 hover:text-white">
+          <i class="fa-solid fa-chart-line w-5 text-center"></i>
+          <span data-i18n="menu_dashboard">Dasbor</span>
         </button>
         <button data-view="map" class="nav-item flex items-center space-x-3 px-4 py-2.5 rounded-lg text-sm font-medium transition text-slate-300 hover:bg-slate-800 hover:text-white">
           <i class="fa-solid fa-map-location-dot w-5 text-center"></i>
@@ -209,12 +192,84 @@
 
         <!-- ================= VIEW: DASHBOARD ================= -->
         <section id="view-dashboard" class="view-section hidden space-y-6">
+
+          <!-- ===== v2.9.15 : KOP INSTANSI + STATUS BAR PROFESIONAL ===== -->
+          <div class="gov-header rounded-xl overflow-hidden border border-slate-700/60 shadow-lg">
+            <!-- Baris kop: logo + nama instansi + jam -->
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 px-4 md:px-5 py-3 md:py-4 bg-gradient-to-r from-slate-900 via-slate-900 to-slate-800/60 border-b border-slate-700/60">
+              <div class="flex items-center gap-3 md:gap-4 min-w-0">
+                <div class="relative flex-shrink-0">
+                  <img id="gov-logo-img" src="/logo.png" class="w-11 h-11 md:w-14 md:h-14 rounded-lg object-contain bg-white/95 p-1"
+                       onerror="this.style.display='none'; document.getElementById('gov-logo-fallback').classList.remove('hidden')">
+                  <div id="gov-logo-fallback" class="hidden w-11 h-11 md:w-14 md:h-14 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 text-slate-900 flex items-center justify-center">
+                    <i class="fa-solid fa-shield-halved text-lg md:text-xl"></i>
+                  </div>
+                </div>
+                <div class="min-w-0">
+                  <div id="gov-agency-line" class="text-[9px] md:text-[10px] uppercase tracking-[0.14em] text-amber-400/90 font-semibold truncate" data-i18n="gov_agency_line">Sistem Pemantauan CCTV Terpadu</div>
+                  <h1 id="gov-agency-name" class="font-bold text-sm md:text-xl leading-tight truncate">Web-CCTV</h1>
+                  <div id="gov-agency-sub" class="text-[10px] md:text-xs text-slate-400 truncate">HG680P</div>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-3 md:gap-5 flex-shrink-0">
+                <div class="text-right">
+                  <div id="gov-clock" class="font-mono font-bold text-2xl md:text-4xl leading-none tracking-tight tabular-nums">--:--:--</div>
+                  <div id="gov-date" class="text-[10px] md:text-xs text-slate-400 mt-1 capitalize">—</div>
+                </div>
+                <div id="gov-live-badge" class="hidden md:flex flex-col items-center px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/40">
+                  <span class="flex items-center gap-1.5 text-red-400 text-[10px] font-bold tracking-wider">
+                    <span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>LIVE
+                  </span>
+                  <span class="text-[9px] text-slate-400 mt-0.5" data-i18n="gov_rec">MONITORING</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Baris status: indikator sistem -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-px bg-slate-700/40">
+              <div class="gov-stat">
+                <span class="gov-stat-label" data-i18n="gov_cam_online">Kamera Online</span>
+                <span class="gov-stat-value text-emerald-400"><span id="gov-online">0</span><span class="text-slate-500 text-xs">/<span id="gov-total">0</span></span></span>
+              </div>
+              <div class="gov-stat">
+                <span class="gov-stat-label" data-i18n="gov_cam_offline">Offline</span>
+                <span class="gov-stat-value text-red-400" id="gov-offline">0</span>
+              </div>
+              <div class="gov-stat">
+                <span class="gov-stat-label" data-i18n="gov_uptime">Uptime STB</span>
+                <span class="gov-stat-value font-mono" id="gov-uptime">—</span>
+              </div>
+              <div class="gov-stat">
+                <span class="gov-stat-label">CPU</span>
+                <span class="gov-stat-value font-mono" id="gov-cpu">—</span>
+                <div class="gov-meter"><div id="gov-cpu-bar" class="gov-meter-fill bg-emerald-500" style="width:0%"></div></div>
+              </div>
+              <div class="gov-stat">
+                <span class="gov-stat-label" data-i18n="gov_temp">Suhu</span>
+                <span class="gov-stat-value font-mono" id="gov-temp">—</span>
+              </div>
+              <div class="gov-stat">
+                <span class="gov-stat-label" data-i18n="gov_storage">Penyimpanan</span>
+                <span class="gov-stat-value font-mono" id="gov-disk">—</span>
+                <div class="gov-meter"><div id="gov-disk-bar" class="gov-meter-fill bg-emerald-500" style="width:0%"></div></div>
+                <span class="gov-stat-sub" id="gov-disk-detail"></span>
+              </div>
+            </div>
+
+            <!-- Teks berjalan resmi -->
+            <div class="gov-ticker border-t border-slate-700/60">
+              <span class="gov-ticker-tag" data-i18n="gov_info">INFO</span>
+              <div class="gov-ticker-track"><span id="gov-running-text" class="gov-ticker-text">—</span></div>
+            </div>
+          </div>
+
           <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-2 md:space-y-0">
             <div>
               <h2 class="text-xl md:text-2xl font-bold tracking-tight" data-i18n="dash_welcome">Dasbor Pemantauan</h2>
               <p class="text-slate-400 text-xs md:text-sm" data-i18n="dash_sub">Statistik real-time sistem dan status koneksi kamera CCTV.</p>
             </div>
-            <div id="dash-clock" class="text-xs md:text-sm font-mono text-slate-400 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-lg flex items-center space-x-2 self-start md:self-auto flex-shrink-0">
+            <div id="dash-clock" class="hidden text-xs md:text-sm font-mono text-slate-400 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-lg items-center space-x-2 self-start md:self-auto flex-shrink-0">
               <i class="fa-solid fa-clock text-blue-500"></i>
               <span>--:--:--</span>
             </div>
@@ -404,9 +459,9 @@
               <p class="text-slate-400 text-xs md:text-sm" data-i18n="map_sub">Menampilkan lokasi geografis kamera CCTV beserta status terbarunya.</p>
             </div>
             <div class="flex items-center space-x-3 text-[10px] md:text-xs bg-slate-900 border border-slate-800 p-2 rounded-lg self-start md:self-auto flex-shrink-0">
-              <span class="flex items-center space-x-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span><span data-i18n="online">Online</span></span>
-              <span class="flex items-center space-x-1"><span class="w-2.5 h-2.5 rounded-full bg-red-500"></span><span data-i18n="offline">Offline</span></span>
-              <span class="flex items-center space-x-1"><span class="w-2.5 h-2.5 rounded-full bg-slate-500"></span><span data-i18n="unknown">Tidak Diketahui</span></span>
+              <span class="flex items-center space-x-1"><i class="fa-solid fa-video text-emerald-500"></i><span data-i18n="online">Online</span></span>
+              <span class="flex items-center space-x-1"><i class="fa-solid fa-video text-red-500"></i><span data-i18n="offline">Offline</span></span>
+              <span class="flex items-center space-x-1"><i class="fa-solid fa-video text-slate-500"></i><span data-i18n="unknown">Tidak Diketahui</span></span>
             </div>
           </div>
 
@@ -628,8 +683,156 @@
             </p>
           </div>
 
+          <!-- v3.0: ringkasan bergaya panel admin router -->
+          <div class="router-console" aria-label="Ringkasan jaringan">
+            <div class="router-console-head">
+              <div>
+                <span class="router-eyebrow"><i class="fa-solid fa-wave-square"></i> NETWORK CONTROL CENTER</span>
+                <h3>Topologi CCTV</h3>
+                <p>Status WAN, gateway CCTV, DHCP, dan perangkat dalam satu pandangan.</p>
+              </div>
+              <div class="router-health" id="router-health-badge">
+                <span class="router-health-dot"></span><span>Memeriksa jaringan</span>
+              </div>
+            </div>
+
+            <div class="router-topology" id="router-topology">
+              <div class="router-node" id="router-node-wan">
+                <span class="router-node-icon"><i class="fa-solid fa-globe"></i></span>
+                <span><b>Internet / WAN</b><small id="router-wan-summary">Mendeteksi…</small></span>
+              </div>
+              <span class="router-link"><i class="fa-solid fa-chevron-right"></i></span>
+              <div class="router-node router-node-main">
+                <span class="router-node-icon"><i class="fa-solid fa-server"></i></span>
+                <span><b>STB Web-CCTV</b><small id="router-stb-summary">Gateway lokal</small></span>
+              </div>
+              <span class="router-link"><i class="fa-solid fa-chevron-right"></i></span>
+              <div class="router-node" id="router-node-lan">
+                <span class="router-node-icon"><i class="fa-solid fa-ethernet"></i></span>
+                <span><b>LAN Kamera</b><small id="router-lan-summary">Mendeteksi…</small></span>
+              </div>
+              <span class="router-link"><i class="fa-solid fa-chevron-right"></i></span>
+              <div class="router-node" id="router-node-camera">
+                <span class="router-node-icon"><i class="fa-solid fa-video"></i></span>
+                <span><b>IP Camera</b><small id="router-camera-summary">Siap dipindai</small></span>
+              </div>
+            </div>
+
+            <nav class="router-quick-nav" aria-label="Navigasi pengaturan jaringan">
+              <a href="#network-zerotier"><i class="fa-solid fa-share-nodes"></i> ZeroTier</a>
+              <a href="#network-dhcp"><i class="fa-solid fa-address-card"></i> DHCP</a>
+              <a href="#network-interfaces"><i class="fa-solid fa-sitemap"></i> Antarmuka</a>
+              <a href="#network-wan"><i class="fa-solid fa-earth-asia"></i> WAN</a>
+              <a href="#network-lan"><i class="fa-solid fa-network-wired"></i> LAN</a>
+              <a href="#network-cameras"><i class="fa-solid fa-radar"></i> Pindai Kamera</a>
+            </nav>
+          </div>
+
+          <!-- ===== v3.1: ZEROTIER TANPA TERMINAL ===== -->
+          <div id="network-zerotier" class="network-panel bg-slate-900 border border-slate-800 rounded-xl p-4 md:p-6 space-y-4 shadow-lg">
+            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+              <div>
+                <h3 class="font-bold text-white flex items-center gap-2 text-sm md:text-base">
+                  <span class="zerotier-logo"><i class="fa-solid fa-share-nodes"></i></span>
+                  <span>ZeroTier — Akses CCTV dari Jaringan Virtual</span>
+                </h3>
+                <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                  Pasang dan hubungkan STB ke jaringan ZeroTier langsung dari dashboard. Tidak perlu SSH,
+                  terminal, port forwarding, atau IP publik.
+                </p>
+              </div>
+              <button type="button" onclick="loadZeroTierStatus()" class="self-start bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-lg text-xs font-semibold border border-slate-700 cursor-pointer">
+                <i class="fa-solid fa-rotate mr-1"></i>Perbarui Status
+              </button>
+            </div>
+
+            <div id="zerotier-message" class="hidden rounded-lg px-3 py-2 text-[11px]"></div>
+
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-2">
+              <div class="zerotier-stat"><span>Status Service</span><strong id="zerotier-installed">Memeriksa…</strong></div>
+              <div class="zerotier-stat"><span>Status Node</span><strong id="zerotier-online">—</strong></div>
+              <div class="zerotier-stat"><span>Node ID</span><strong id="zerotier-node-id" class="font-mono">—</strong></div>
+              <div class="zerotier-stat"><span>Versi</span><strong id="zerotier-version" class="font-mono">—</strong></div>
+            </div>
+
+            <div id="zerotier-install-box" class="hidden bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 space-y-2">
+              <p class="text-[11px] text-amber-200">
+                ZeroTier belum terpasang. Klik tombol berikut; dashboard akan mengunduh paket resmi,
+                memasangnya, dan mengaktifkan service otomatis saat boot.
+              </p>
+              <button id="zerotier-install-btn" type="button" onclick="installZeroTier()" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg text-xs font-bold border-0 cursor-pointer">
+                <i class="fa-solid fa-download mr-1"></i>Pasang ZeroTier Otomatis
+              </button>
+            </div>
+
+            <div id="zerotier-join-box" class="hidden bg-slate-950/60 border border-slate-800 rounded-xl p-3 space-y-3">
+              <div class="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2 items-end">
+                <div>
+                  <label for="zerotier-network-id" class="block text-[10px] text-slate-500 uppercase font-semibold mb-1">Network ID ZeroTier</label>
+                  <input id="zerotier-network-id" type="text" inputmode="text" maxlength="16" autocomplete="off" spellcheck="false"
+                    placeholder="contoh: 8056c2e21c000001"
+                    class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 font-mono tracking-wider focus:outline-none">
+                  <p class="text-[9px] text-slate-500 mt-1">Salin Network ID 16 karakter dari my.zerotier.com atau ZeroTier Central.</p>
+                </div>
+                <button id="zerotier-join-btn" type="button" onclick="joinZeroTier()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-bold border-0 cursor-pointer whitespace-nowrap">
+                  <i class="fa-solid fa-link mr-1"></i>Gabung Jaringan
+                </button>
+              </div>
+              <div class="text-[10px] text-sky-300 bg-sky-500/10 border border-sky-500/20 rounded-lg px-3 py-2">
+                Setelah bergabung, buka ZeroTier Central dan centang <b>Auth</b> untuk Node ID STB ini.
+                IP virtual akan muncul otomatis di daftar jaringan di bawah.
+              </div>
+            </div>
+
+            <div>
+              <div class="text-[10px] text-slate-500 uppercase font-semibold mb-2">Jaringan yang Diikuti</div>
+              <div id="zerotier-networks" class="space-y-2">
+                <div class="text-[11px] text-slate-500 py-3 text-center">Memuat status ZeroTier…</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== v2.9.20: SKEMA IP DEFAULT & DHCP SERVER ===== -->
+          <div id="network-dhcp" class="network-panel bg-slate-900 border border-slate-800 rounded-xl p-4 md:p-6 space-y-4 shadow-lg">
+            <h3 class="font-bold text-white flex items-center space-x-2 text-sm md:text-base">
+              <i class="fa-solid fa-server text-emerald-400"></i>
+              <span data-i18n="net_dhcp_title">Skema IP Default &amp; DHCP untuk LAN CCTV (tanpa internet)</span>
+            </h3>
+            <p class="text-[11px] md:text-xs text-slate-400 leading-relaxed" data-i18n="net_dhcp_body">
+              Colok port LAN STB ke switch hub, lalu kamera ke switch hub yang sama. Aktifkan
+              DHCP server di bawah ini maka setiap kamera yang dicolok <b>langsung mendapat IP
+              otomatis</b> — tanpa router dan tanpa internet. Web CCTV tetap tampil karena semua
+              berjalan di jaringan lokal.
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px]">
+              <div class="bg-slate-950 border border-slate-800 rounded-lg px-3 py-2">
+                <div class="text-slate-500 uppercase text-[9px] font-bold" data-i18n="net_dhcp_stb">STB (port LAN)</div>
+                <div class="font-mono text-emerald-400">192.168.77.1/24</div>
+              </div>
+              <div class="bg-slate-950 border border-slate-800 rounded-lg px-3 py-2">
+                <div class="text-slate-500 uppercase text-[9px] font-bold" data-i18n="net_dhcp_static">Kamera statis (disarankan)</div>
+                <div class="font-mono text-blue-400">192.168.77.2 – .99</div>
+              </div>
+              <div class="bg-slate-950 border border-slate-800 rounded-lg px-3 py-2">
+                <div class="text-slate-500 uppercase text-[9px] font-bold" data-i18n="net_dhcp_auto">Kamera otomatis (DHCP)</div>
+                <div class="font-mono text-amber-400">192.168.77.100 – .200</div>
+              </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+              <button type="button" id="net-dhcp-toggle" onclick="handleToggleDhcp()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition border-0 cursor-pointer">
+                <i class="fa-solid fa-toggle-on mr-1"></i><span data-i18n="net_dhcp_enable">Aktifkan DHCP Server Kamera</span>
+              </button>
+              <span id="net-dhcp-status" class="text-[11px] text-slate-400"></span>
+            </div>
+            <p class="text-[10px] text-slate-500 leading-relaxed" data-i18n="net_dhcp_note">
+              Catatan: agar satu jaringan, setel IP statis port LAN STB ke 192.168.77.1/24 pada
+              bagian Topologi di bawah (peran LAN). Kamera yang muncul di pemindaian ONVIF bisa
+              langsung dipakai dari web walau tanpa internet.
+            </p>
+          </div>
+
           <!-- ===== 1. TOPOLOGI & PERAN ANTARMUKA ===== -->
-          <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 md:p-6 space-y-4 shadow-lg">
+          <div id="network-interfaces" class="network-panel bg-slate-900 border border-slate-800 rounded-xl p-4 md:p-6 space-y-4 shadow-lg">
             <h3 class="font-bold text-white flex items-center space-x-2 text-sm md:text-base">
               <i class="fa-solid fa-sitemap text-blue-400"></i>
               <span data-i18n="net_topology_title">1. Topologi &amp; Peran Antarmuka</span>
@@ -677,7 +880,7 @@
           </div>
 
           <!-- ===== 2. KONFIGURASI ETH / WAN ===== -->
-          <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 md:p-6 space-y-3 shadow-lg">
+          <div id="network-wan" class="network-panel bg-slate-900 border border-slate-800 rounded-xl p-4 md:p-6 space-y-3 shadow-lg">
             <h3 class="font-bold text-white flex items-center space-x-2 text-sm md:text-base">
               <i class="fa-solid fa-globe text-emerald-400"></i>
               <span data-i18n="net_wan_title">2. Konfigurasi ETH / WAN (Sumber Internet)</span>
@@ -691,7 +894,7 @@
           </div>
 
           <!-- ===== 3. KONFIGURASI PORT LAN (SWITCH HUB) ===== -->
-          <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 md:p-6 space-y-3 shadow-lg">
+          <div id="network-lan" class="network-panel bg-slate-900 border border-slate-800 rounded-xl p-4 md:p-6 space-y-3 shadow-lg">
             <h3 class="font-bold text-white flex items-center space-x-2 text-sm md:text-base">
               <i class="fa-solid fa-ethernet text-sky-400"></i>
               <span data-i18n="net_lan_title">3. Konfigurasi Port LAN ke Switch Hub</span>
@@ -703,7 +906,7 @@
           </div>
 
           <!-- ===== 4. KONFIGURASI IP KAMERA ===== -->
-          <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 md:p-6 space-y-4 shadow-lg">
+          <div id="network-cameras" class="network-panel bg-slate-900 border border-slate-800 rounded-xl p-4 md:p-6 space-y-4 shadow-lg">
             <h3 class="font-bold text-white flex items-center space-x-2 text-sm md:text-base">
               <i class="fa-solid fa-video text-rose-400"></i>
               <span data-i18n="net_cam_title">4. Konfigurasi IP Kamera</span>
@@ -839,7 +1042,12 @@
             <form id="settings-app-form" onsubmit="handleSaveAppSettings(event)" class="space-y-4">
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label class="block text-[10px] md:text-xs font-semibold text-slate-400 uppercase mb-1" data-i18n="setting_name">Nama Aplikasi</label>
+                  <label class="block text-[10px] md:text-xs font-semibold text-slate-400 uppercase mb-1" data-i18n="setting_agency_line">Baris Atas Kop</label>
+              <input type="text" id="setting-agency-line" maxlength="80" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs md:text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase" placeholder="SISTEM PEMANTAUAN CCTV TERPADU">
+              <p class="mt-1 text-[10px] text-slate-500" data-i18n="setting_agency_line_hint">Baris kecil paling atas di kop instansi, di atas nama instansi.</p>
+            </div>
+            <div>
+              <label class="block text-[10px] md:text-xs font-semibold text-slate-400 uppercase mb-1" data-i18n="setting_name">Nama Aplikasi</label>
                   <input type="text" id="setting-app-name" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs md:text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div>
@@ -848,8 +1056,9 @@
                 </div>
               </div>
               <div>
-                <label class="block text-[10px] md:text-xs font-semibold text-slate-400 uppercase mb-1" data-i18n="setting_running">Teks Berjalan Utama</label>
-                <textarea id="setting-running-text" required rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs md:text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
+                <label class="block text-[10px] md:text-xs font-semibold text-slate-400 uppercase mb-1" data-i18n="setting_running">Teks Berjalan (Baris INFO)</label>
+                <textarea id="setting-running-text" rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs md:text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
+                <p class="text-slate-500 text-[10px] mt-1" data-i18n="setting_running_hint">Kalimat yang bergulir pada baris INFO di kop. Jika dikosongkan, baris INFO otomatis diisi informasi sistem (nama aplikasi, kamera online, tanggal).</p>
               </div>
               <div>
                 <label class="block text-[10px] md:text-xs font-semibold text-slate-400 uppercase mb-1" data-i18n="setting_footer">Kaki Halaman (Footer)</label>
@@ -1523,11 +1732,11 @@
               </div>
               <div>
                 <label class="block text-[10px] md:text-xs font-semibold text-slate-400 uppercase mb-1" data-i18n="pwd_new">Kata Sandi Baru</label>
-                <input type="password" id="pwd-new" minlength="4" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs md:text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Sandi baru (min 4 karakter)">
+                <input type="password" id="pwd-new" minlength="8" autocomplete="new-password" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs md:text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Sandi baru (minimal 8 karakter)">
               </div>
               <div>
                 <label class="block text-[10px] md:text-xs font-semibold text-slate-400 uppercase mb-1" data-i18n="pwd_new_confirm">Konfirmasi Kata Sandi Baru</label>
-                <input type="password" id="pwd-new-confirm" minlength="4" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs md:text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ulangi sandi baru">
+                <input type="password" id="pwd-new-confirm" minlength="8" autocomplete="new-password" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs md:text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ulangi sandi baru (minimal 8 karakter)">
               </div>
               <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition cursor-pointer border-0" data-i18n="save">Simpan Perubahan</button>
             </form>
@@ -1766,13 +1975,13 @@
 
     <!-- Mobile Android-style bottom navigation -->
     <nav id="mobile-bottom-nav" class="mobile-bottom-nav md:hidden" aria-label="Navigasi utama mobile">
-      <button type="button" data-view="dashboard" class="mobile-bottom-item admin-only hidden" aria-label="Dasbor">
-        <span class="mobile-bottom-icon"><i class="fa-solid fa-house"></i></span>
-        <span class="mobile-bottom-label" data-i18n="menu_dashboard">Dasbor</span>
-      </button>
       <button type="button" data-view="live" class="mobile-bottom-item" aria-label="Live CCTV">
         <span class="mobile-bottom-icon"><i class="fa-solid fa-video"></i></span>
         <span class="mobile-bottom-label" data-i18n="menu_live">Live CCTV</span>
+      </button>
+      <button type="button" data-view="dashboard" class="mobile-bottom-item admin-only hidden" aria-label="Dasbor">
+        <span class="mobile-bottom-icon"><i class="fa-solid fa-house"></i></span>
+        <span class="mobile-bottom-label" data-i18n="menu_dashboard">Dasbor</span>
       </button>
       <button type="button" data-view="map" class="mobile-bottom-item" aria-label="Peta Lokasi">
         <span class="mobile-bottom-icon"><i class="fa-solid fa-map-location-dot"></i></span>
@@ -2052,16 +2261,25 @@
           <div>
             <label class="block text-[10px] md:text-xs font-semibold text-slate-400 uppercase mb-1" data-i18n="camera_name_req">Nama Kamera *</label>
             <input type="text" id="cam-name" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs md:text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <p class="cam-hint mt-1 text-[10px] text-slate-500" data-i18n="cam_hint_name">Contoh: "Kamera 01 — Parkir Depan". Nama tampil di grid live & daftar rekaman.</p>
           </div>
           <div>
             <label class="block text-[10px] md:text-xs font-semibold text-slate-400 uppercase mb-1" data-i18n="location">Lokasi</label>
             <input type="text" id="cam-location" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs md:text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <p class="cam-hint mt-1 text-[10px] text-slate-500" data-i18n="cam_hint_location">Boleh kosong. Isi nama tempat pemasangan, tampil sebagai keterangan di peta & grid.</p>
           </div>
         </div>
 
         <div>
           <label class="block text-[10px] md:text-xs font-semibold text-slate-400 uppercase mb-1" data-i18n="stream_url_req">RTSP URL / .m3u8 Stream *</label>
-          <input type="text" id="cam-rtsp" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs md:text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-[10px] md:text-xs" placeholder="rtsp://... atau http://...m3u8">
+          <input type="text" id="cam-rtsp" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs md:text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-[10px] md:text-xs" placeholder="rtsp://admin:sandi@192.168.77.10:554/onvif1  atau  http://...m3u8">
+          <p class="cam-hint mt-1 text-[10px] text-slate-500 leading-relaxed" data-i18n="cam_hint_rtsp">
+            Alamat stream kamera/DVR. Skema IP default LAN CCTV (tanpa internet): STB
+            <span class="font-mono text-emerald-400">192.168.77.1</span>, kamera statis
+            <span class="font-mono text-blue-400">192.168.77.2–99</span>, otomatis (DHCP)
+            <span class="font-mono text-amber-400">.100–200</span>. Bila bingung, buka
+            "Asisten Pembuat RTSP" di bawah atau tombol "Pindai ONVIF".
+          </p>
           <!-- v2.9.1: pratinjau alamat IP & jalur jaringan, diperbarui saat mengetik -->
           <div id="cam-url-netinfo" class="mt-2 hidden bg-slate-950/70 border border-slate-800 rounded-lg px-3 py-2 text-[10px] md:text-xs text-slate-400 space-y-1"></div>
         </div>
@@ -2093,7 +2311,9 @@
               </div>
               <div>
                 <label class="block text-[9px] text-slate-500 uppercase font-semibold mb-1">IP Address</label>
-                <input type="text" id="maker-ip" value="192.168.1.3" oninput="generateRtspPreview()" class="w-full bg-slate-900 border border-slate-800 rounded px-2 py-1 text-xs text-white font-mono focus:outline-none">
+                <!-- v2.9.20: default mengikuti skema LAN CCTV 192.168.77.x -->
+                <input type="text" id="maker-ip" value="192.168.77.10" oninput="generateRtspPreview()" class="w-full bg-slate-900 border border-slate-800 rounded px-2 py-1 text-xs text-white font-mono focus:outline-none">
+                <p class="cam-hint mt-0.5 text-[9px] text-slate-600" data-i18n="cam_hint_maker_ip">Default skema LAN CCTV: .2–.99 statis, .100–200 DHCP</p>
               </div>
               <div>
                 <label class="block text-[9px] text-slate-500 uppercase font-semibold mb-1">Port RTSP</label>
@@ -2182,14 +2402,17 @@
               <option value="hls">HLS / HTTP Live (.m3u8)</option>
               <option value="youtube">YouTube Live Link</option>
             </select>
+            <p class="cam-hint mt-1 text-[10px] text-slate-500" data-i18n="cam_hint_type">Pilih sesuai perangkat. Bila RTSP kamera tidak didukung, gunakan HLS (.m3u8) atau MJPEG lewat asisten.</p>
           </div>
           <div>
             <label class="block text-[10px] md:text-xs font-semibold text-slate-400 uppercase mb-1" data-i18n="channel">Channel</label>
             <input type="number" id="cam-channel" value="1" min="1" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs md:text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <p class="cam-hint mt-1 text-[10px] text-slate-500" data-i18n="cam_hint_channel">Nomor kanal DVR/NVR (1 = kanal pertama). Kamera IP tunggal biasanya 1.</p>
           </div>
           <div>
             <label class="block text-[10px] md:text-xs font-semibold text-slate-400 uppercase mb-1" data-i18n="youtube_embed">YouTube Video ID</label>
             <input type="text" id="cam-yt" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs md:text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Contoh: dQw4w9WgXcQ">
+            <p class="cam-hint mt-1 text-[10px] text-slate-500" data-i18n="cam_hint_yt">Hanya dipakai bila tipe = YouTube. Butuh internet; abaikan untuk LAN tanpa internet.</p>
           </div>
         </div>
 
@@ -2245,10 +2468,12 @@
           <div>
             <label class="block text-[10px] md:text-xs font-semibold text-slate-400 uppercase mb-1" data-i18n="latitude">Latitude (Peta)</label>
             <input type="number" id="cam-lat" step="any" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs md:text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <p class="cam-hint mt-1 text-[10px] text-slate-500" data-i18n="cam_hint_lat">Opsional, contoh -6.1754. Untuk posisi penanda kamera di peta.</p>
           </div>
           <div>
             <label class="block text-[10px] md:text-xs font-semibold text-slate-400 uppercase mb-1" data-i18n="longitude">Longitude (Peta)</label>
             <input type="number" id="cam-lng" step="any" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs md:text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <p class="cam-hint mt-1 text-[10px] text-slate-500" data-i18n="cam_hint_lng">Opsional, contoh 106.8272. Peta (tile) butuh internet; di LAN offline posisi tetap tersimpan.</p>
           </div>
         </div>
 
@@ -2418,9 +2643,9 @@
   </div>
 
   <!-- Script Libraries -->
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/html5-qrcode"></script>
+  <script src="/vendor/hls.min.js"></script>
+  <script src="/vendor/leaflet/leaflet.js"></script>
+  <script src="/vendor/html5-qrcode.min.js"></script>
   <script>
     // Toggle Password Visibility on Login Screen
     function toggleLoginPasswordVisibility() {
@@ -2439,6 +2664,6 @@
       }
     }
   </script>
-  <script src="/app.js?v=2.8.0"></script>
+  <script src="/app.js?v=3.1.4"></script>
 </body>
 </html>
